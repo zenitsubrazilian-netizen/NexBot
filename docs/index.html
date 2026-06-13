@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexBot — Minigames</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .logo {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+    }
+    .subtitle {
+      color: #aaa;
+      font-size: 1rem;
+      margin-bottom: 48px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      width: 100%;
+      max-width: 800px;
+    }
+    .card {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: #7b2ff7;
+      box-shadow: 0 8px 32px rgba(123, 47, 247, 0.3);
+    }
+    .card-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      color: #888;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    footer {
+      margin-top: 60px;
+      color: #444;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">⚙️ NΞXBØT</div>
+  <div class="subtitle">Central de Minigames — Escolha seu jogo!</div>
+  <div class="grid">
+    <a class="card" href="./quiz/">
+      <span class="card-icon">🤖</span>
+      <div class="card-title">Quiz</div>
+      <div class="card-desc">Responda perguntas de múltipla escolha sobre diversos temas e teste seu conhecimento!</div>
+      <span class="badge">Jogar agora</span>
+    </a>
+    <a class="card" href="./forca/">
+      <span class="card-icon">🎮</span>
+      <div class="card-title">Forca</div>
+      <div class="card-desc">Descubra a palavra oculta letra por letra antes que o tempo acabe!</div>
+      <span class="badge">Jogar agora</span>
+    </a>
+  </div>
+  <footer>NexBot &copy; 2026 — Feito com 💜</footer>
+</body>
+</html>
