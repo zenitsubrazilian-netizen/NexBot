@@ -159,18 +159,37 @@
         const btn = document.createElement('button');
         btn.className = 'key';
         btn.textContent = l;
-        if (guessed.includes(l)) { btn.classList.add('correct', 'used'); }
-        else if (wrong.includes(l)) { btn.classList.add('wrong', 'used'); }
-        else { btn.onclick = () => guess(l); }
+        btn.setAttribute('data-letter', l);
+        if (guessed.includes(l)) {
+          btn.classList.add('correct', 'used');
+          btn.disabled = true;
+        } else if (wrong.includes(l)) {
+          btn.classList.add('wrong', 'used');
+          btn.disabled = true;
+        } else {
+          btn.disabled = false;
+        }
         kb.appendChild(btn);
       });
     }
+    document.getElementById('keyboard').addEventListener('touchend', function(e) {
+      e.preventDefault();
+      const btn = e.target.closest('[data-letter]');
+      if (!btn || btn.disabled || gameOver) return;
+      guess(btn.getAttribute('data-letter'));
+    });
+    document.getElementById('keyboard').addEventListener('click', function(e) {
+      const btn = e.target.closest('[data-letter]');
+      if (!btn || btn.disabled || gameOver) return;
+      guess(btn.getAttribute('data-letter'));
+    });
     function updateInfo() {
       document.getElementById('errorsDisplay').textContent = `❌ Erros: ${wrong.length}/6`;
       document.getElementById('wrongLetters').textContent = wrong.length ? `Erradas: ${wrong.join(', ')}` : 'Letras erradas: —';
     }
     function guess(l) {
       if (gameOver) return;
+      l = String(l).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       if (guessed.includes(l) || wrong.includes(l)) return;
       if (word.includes(l)) {
         guessed.push(l);
