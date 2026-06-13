@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NexBot — Slither Snake</title>
+<style>
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: #020205;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    canvas {
+        display: block;
+    }
+
+    .back {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 30;
+        color: #fff;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 700;
+        padding: 8px 14px;
+        border-radius: 10px;
+        letter-spacing: 0.5px;
+    }
+
+    /* UI Moderna e Clean */
+    .ui {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        color: white;
+        z-index: 10;
+        user-select: none;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .ui-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #score { border-left: 4px solid #00ff88; color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+    #bots { border-left: 4px solid #00ffff; color: #00ffff; text-shadow: 0 0 10px rgba(0,255,255,0.3); }
+
+    /* Estilização do Joystick Virtual */
+    #joystick-zone {
+        position: fixed;
+        bottom: 40px;
+        left: 40px;
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: none;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        box-shadow: inset 0 0 15px rgba(255,255,255,0.05);
+        transition: border-color 0.3s, background 0.3s;
+    }
+
+    #joystick-handle {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #ffffff, #a0a0a0);
+        border-radius: 50%;
+        position: absolute;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4), 0 0 10px rgba(255,255,255,0.2);
+        transform: translate(0px, 0px);
+        pointer-events: none;
+    }
+
+    /* Efeito ativo no Joystick */
+    #joystick-zone:active {
+        border-color: rgba(0, 255, 136, 0.4);
+        background: rgba(0, 255, 136, 0.03);
+    }
+
+    /* Tela de Game Over */
+    #gameover {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        background: rgba(2,2,5,0.78);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        text-align: center;
+        padding: 24px;
+    }
+    #gameover.show { display: flex; }
+    #gameover h2 {
+        font-size: 2.2rem;
+        margin: 0;
+        color: #ff3300;
+        text-shadow: 0 0 18px rgba(255,51,0,0.5);
+        letter-spacing: 2px;
+    }
+    #gameover p {
+        color: #ddd;
+        margin: 0;
+        font-size: 1rem;
+    }
+    #gameover p span {
+        color: #00ff88;
+        font-weight: 800;
+    }
+    #btnRestart {
+        margin-top: 8px;
+        padding: 14px 32px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        touch-action: manipulation;
+    }
+</style>
+</head>
+<body>
+
+<a class="back" href="../">← Voltar</a>
+
+<div class="ui">
+    <div id="score" class="ui-card">Pontos: 0</div>
+    <div id="bots" class="ui-card">Bots Vivos: 0</div>
+</div>
+
+<!-- Container do Joystick -->
+<div id="joystick-zone">
+    <div id="joystick-handle"></div>
+</div>
+
+<!-- Tela de Game Over -->
+<div id="gameover">
+    <h2>💀 VOCÊ MORREU</h2>
+    <p>Pontuação final: <span id="finalScore">0</span></p>
+    <button id="btnRestart">Jogar novamente 🔄</button>
+</div>
+
+<canvas id="c"></canvas>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+addEventListener("resize", resizeCanvas);
+
+const world = { width: 3000, height: 3000 };
+
+const FOOD_COUNT = 150;
+const BOT_COUNT = 8;
+const SEGMENT_GAP = 9; // Menor gap para o corpo parecer uma linha contínua e fluída
+const HEAD_RADIUS = 11;
+const BODY_RADIUS = 9;
+const COLLISION_DIST = 13;
+
+let food = [];
+let snakes = [];
+let particles = [];
+let player = null;
+let gameOver = false;
+let rafId = null;
+
+const BOT_COLORS = ["#00ff88", "#00ffff", "#ff00ff", "#ffff00", "#ff3300", "#9933ff"];
+
+function rand(min, max) { return Math.random() * (max - min) + min; }
+
+function spawnFood(x, y, isPremium = false) {
+    return {
+        x: x !== undefined ? x : rand(20, world.width - 20),
+        y: y !== undefined ? y : rand(20, world.height - 20),
+        size: isPremium ? rand(6, 10) : rand(4, 5),
+        color: isPremium ? `hsl(${rand(280, 340)}, 100%, 65%)` : `hsl(${rand(170, 210)}, 100%, 65%)`,
+        value: isPremium ? 2 : 1,
+        pulse: rand(0, Math.PI) // Usado para animação de pulsação suave da comida
+    };
+}
+
+function createSnake({ bot = false, x = 1500, y = 1500, color = "#00ff88" } = {}) {
+    const snake = {
+        bot,
+        color,
+        x,
+        y,
+        dir: { x: 1, y: 0 },
+        speed: bot ? rand(2.5, 3.2) : 3.5,
+        score: 0,
+        body: []
+    };
+
+    // Inicializa os segmentos exatamente no mesmo ponto para evitar o efeito "mola" ao nascer
+    const initialLength = 12;
+    for (let i = 0; i < initialLength; i++) {
+        snake.body.push({ x: x, y: y });
+    }
+
+    return snake;
+}
+
+function createDeathAnimation(x, y, color) {
+    for (let i = 0; i < 35; i++) {
+        const angle = rand(0, Math.PI * 2);
+        const speed = rand(1, 7);
+        particles.push({
+            x, y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            radius: rand(2, 6),
+            color: color,
+            alpha: 1,
+            decay: rand(0.01, 0.025)
+        });
+    }
+}
+
+function handleDeath(snake) {
+    createDeathAnimation(snake.body[0].x, snake.body[0].y, snake.color);
+
+    // Dropa comida de forma mais espalhada e bonita ao longo do corpo morto
+    for (let i = 1; i < snake.body.length; i += 2) {
+        if (Math.random() < 0.7) {
+            food.push(spawnFood(snake.body[i].x + rand(-10, 10), snake.body[i].y + rand(-10, 10), true));
+        }
+    }
+
+    // ── Se for o jogador, abre a tela de Game Over e PARA o loop ──────────
+    if (snake === player) {
+        triggerGameOver();
+        return;
+    }
+
+    // Reseta propriedades fundamentais (apenas para bots)
+    snake.score = 0;
+    snake.dir = { x: 1, y: 0 };
+    snake.speed = rand(2.5, 3.2);
+
+    let nx = rand(200, world.width - 200);
+    let ny = rand(200, world.height - 200);
+    snake.x = nx;
+    snake.y = ny;
+
+    snake.body = [];
+    for (let i = 0; i < 12; i++) {
+        snake.body.push({ x: nx, y: ny });
+    }
+}
+
+function triggerGameOver() {
+    gameOver = true;
+    document.getElementById("finalScore").textContent = Math.floor(player.score);
+    document.getElementById("gameover").classList.add("show");
+    if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+    }
+}
+
+function resetGame() {
+    snakes = []; food = []; particles = [];
+    gameOver = false;
+    document.getElementById("gameover").classList.remove("show");
+
+    player = createSnake({ bot: false, x: world.width / 2, y: world.height / 2, color: "#00ff88" });
+    snakes.push(player);
+
+    for (let i = 0; i < BOT_COUNT; i++) {
+        snakes.push(createSnake({
+            bot: true,
+            x: rand(200, world.width - 200),
+            y: rand(200, world.height - 200),
+            color: BOT_COLORS[i % BOT_COLORS.length]
+        }));
+    }
+
+    for (let i = 0; i < FOOD_COUNT; i++) food.push(spawnFood());
+
+    document.getElementById("score").innerText = "Pontos: 0";
+    document.getElementById("bots").innerText = "Bots vivos: " + BOT_COUNT;
+
+    if (!rafId) {
+        rafId = requestAnimationFrame(loop);
+    }
+}
+
+// LÓGICA DO JOYSTICK VIRTUAL (Touch + Mouse)
+const joystickZone = document.getElementById("joystick-zone");
+const joystickHandle = document.getElementById("joystick-handle");
+let joystickActive = false;
+
+function handleJoystickMove(clientX, clientY) {
+    if (!joystickActive || gameOver) return;
+
+    const rect = joystickZone.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    let dx = clientX - centerX;
+    let dy = clientY - centerY;
+    const dist = Math.hypot(dx, dy);
+    const maxDist = rect.width / 2;
+
+    // Limita o movimento visual do handle dentro do círculo do joystick
+    if (dist > maxDist) {
+        dx = (dx / dist) * maxDist;
+        dy = (dy / dist) * maxDist;
+    }
+
+    joystickHandle.style.transform = `translate(${dx}px, ${dy}px)`;
+
+    // Define a direção da cobra baseando-se no ângulo vetorial do Joystick
+    if (dist > 5) {
+        const len = Math.hypot(dx, dy);
+        player.dir = { x: dx / len, y: dy / len };
+    }
+}
+
+function resetJoystick() {
+    joystickActive = false;
+    joystickHandle.style.transform = `translate(0px, 0px)`;
+}
+
+// Eventos Touch (Mobile)
+joystickZone.addEventListener("touchstart", e => {
+    joystickActive = true;
+    handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+
+window.addEventListener("touchmove", e => {
+    if (joystickActive) handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+
+window.addEventListener("touchend", resetJoystick);
+
+// Eventos Mouse (PC - caso queira testar clicando e arrastando no joystick)
+joystickZone.addEventListener("mousedown", e => {
+    joystickActive = true;
+    handleJoystickMove(e.clientX, e.clientY);
+});
+window.addEventListener("mousemove", e => {
+    if (joystickActive) handleJoystickMove(e.clientX, e.clientY);
+});
+window.addEventListener("mouseup", resetJoystick);
+
+// Teclado mantido como alternativa confortável para desktop
+window.addEventListener("keydown", e => {
+    if (gameOver) return;
+    if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") player.dir = { x: 0, y: -1 };
+    if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") player.dir = { x: 0, y: 1 };
+    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") player.dir = { x: -1, y: 0 };
+    if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") player.dir = { x: 1, y: 0 };
+});
+
+function clampSnakeToWorld(snake) {
+    const head = snake.body[0];
+    if (head.x < 0 || head.x > world.width || head.y < 0 || head.y > world.height) return true;
+    return false;
+}
+
+function nearestFood(x, y) {
+    let best = null;
+    let bestDist = Infinity;
+    for (const f of food) {
+        const d = Math.hypot(f.x - x, f.y - y);
+        const weight = f.value === 2 ? d * 0.4 : d;
+        if (weight < bestDist) {
+            bestDist = weight;
+            best = f;
+        }
+    }
+    return best;
+}
+
+function updateBot(bot) {
+    const head = bot.body[0];
+    const target = nearestFood(head.x, head.y);
+    let targetDirX = bot.dir.x;
+    let targetDirY = bot.dir.y;
+
+    if (target) {
+        const dx = target.x - head.x;
+        const dy = target.y - head.y;
+        const len = Math.hypot(dx, dy) || 1;
+        targetDirX = dx / len;
+        targetDirY = dy / len;
+    }
+
+    let danger = false;
+    const lookAheadDist = 50;
+    const checkX = head.x + bot.dir.x * lookAheadDist;
+    const checkY = head.y + bot.dir.y * lookAheadDist;
+
+    for (const other of snakes) {
+        const startIndex = (other === bot) ? 4 : 0;
+        for (let i = startIndex; i < other.body.length; i++) {
+            const part = other.body[i];
+            if (Math.hypot(checkX - part.x, checkY - part.y) < COLLISION_DIST * 2.8) {
+                danger = true;
+                break;
+            }
+        }
+        if (danger) break;
+    }
+
+    if (head.x < 120 && bot.dir.x < 0) danger = true;
+    if (head.x > world.width - 120 && bot.dir.x > 0) danger = true;
+    if (head.y < 120 && bot.dir.y < 0) danger = true;
+    if (head.y > world.height - 120 && bot.dir.y > 0) danger = true;
+
+    if (danger) {
+        const turnAngle = Math.random() < 0.5 ? Math.PI / 2 : -Math.PI / 2;
+        const rx = bot.dir.x * Math.cos(turnAngle) - bot.dir.y * Math.sin(turnAngle);
+        const ry = bot.dir.x * Math.sin(turnAngle) + bot.dir.y * Math.cos(turnAngle);
+        bot.dir = { x: rx, y: ry };
+    } else {
+        // Interpolação suave de rota para IA inteligente não virar de forma dura e robótica
+        bot.dir.x += (targetDirX - bot.dir.x) * 0.12;
+        bot.dir.y += (targetDirY - bot.dir.y) * 0.12;
+        const l = Math.hypot(bot.dir.x, bot.dir.y) || 1;
+        bot.dir.x /= l; bot.dir.y /= l;
+    }
+}
+
+// LÓGICA DE MOVIMENTAÇÃO INTERPOLADA (Animação Fluída / Snake Slither Real)
+function moveSnake(snake) {
+    const head = snake.body[0];
+
+    // Atualiza a posição da cabeça
+    head.x += snake.dir.x * snake.speed;
+    head.y += snake.dir.y * snake.speed;
+
+    if (clampSnakeToWorld(snake)) return true;
+
+    // INTERPOLAÇÃO (LERP) DO CORPO: Cada parte segue a anterior suavemente baseada na distância gap
+    for (let i = 1; i < snake.body.length; i++) {
+        const prev = snake.body[i - 1];
+        const curr = snake.body[i];
+
+        const dx = prev.x - curr.x;
+        const dy = prev.y - curr.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > SEGMENT_GAP) {
+            // Empurra o segmento mantendo o gap perfeito, criando efeito elástico e fluido
+            const ratio = SEGMENT_GAP / dist;
+            curr.x = prev.x - dx * ratio;
+            curr.y = prev.y - dy * ratio;
+        }
+    }
+
+    // Crescimento baseado em pontuação
+    const targetLength = Math.floor(snake.score) + 12;
+    if (snake.body.length < targetLength) {
+        const last = snake.body[snake.body.length - 1];
+        snake.body.push({ x: last.x, y: last.y });
+    }
+    return false;
+}
+
+function checkFood(snake) {
+    const head = snake.body[0];
+    for (let i = food.length - 1; i >= 0; i--) {
+        const f = food[i];
+        if (Math.hypot(head.x - f.x, head.y - f.y) < HEAD_RADIUS + f.size + 4) {
+            snake.score += f.value;
+            if (f.value === 2) food.splice(i, 1);
+            else food[i] = spawnFood();
+        }
+    }
+    while (food.length < FOOD_COUNT) food.push(spawnFood());
+}
+
+function headHitsBodyOfOthers(snake) {
+    const head = snake.body[0];
+    for (const other of snakes) {
+        if (other === snake) continue;
+        for (let i = 0; i < other.body.length; i++) {
+            if (i === 0 && Math.hypot(head.x - other.body[0].x, head.y - other.body[0].y) > COLLISION_DIST * 1.5) continue;
+            if (Math.hypot(head.x - other.body[i].x, head.y - other.body[i].y) < COLLISION_DIST) return true;
+        }
+    }
+    return false;
+}
+
+function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy;
+        p.vx *= 0.95; p.vy *= 0.95;
+        p.alpha -= p.decay;
+        if (p.alpha <= 0) particles.splice(i, 1);
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background Escuro Premium
+    ctx.fillStyle = "#030308";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const camX = player.body[0].x - canvas.width / 2;
+    const camY = player.body[0].y - canvas.height / 2;
+
+    // Grade do Cenário com visual de linhas cibernéticas tênues
+    ctx.strokeStyle = "rgba(40, 50, 90, 0.15)";
+    ctx.lineWidth = 1;
+    ctx.shadowBlur = 0;
+
+    const startGridX = Math.max(0, Math.floor(camX / 100) * 100);
+    const endGridX = Math.min(world.width, Math.ceil((camX + canvas.width) / 100) * 100);
+    const startGridY = Math.max(0, Math.floor(camY / 100) * 100);
+    const endGridY = Math.min(world.height, Math.ceil((camY + canvas.height) / 100) * 100);
+
+    for (let x = startGridX; x <= endGridX; x += 100) {
+        ctx.beginPath(); ctx.moveTo(x - camX, startGridY - camY); ctx.lineTo(x - camX, endGridY - camY); ctx.stroke();
+    }
+    for (let y = startGridY; y <= endGridY; y += 100) {
+        ctx.beginPath(); ctx.moveTo(startGridX - camX, y - camY); ctx.lineTo(endGridX - camX, y - camY); ctx.stroke();
+    }
+
+    // Animação de Pulsação das Comidas
+    const time = Date.now() * 0.005;
+
+    // Renderizar Comidas Orbes Neon
+    for (const f of food) {
+        const pulseSize = f.size + Math.sin(time + f.pulse) * 1.2;
+        ctx.fillStyle = f.color;
+        ctx.shadowBlur = f.value === 2 ? 18 : 10;
+        ctx.shadowColor = f.color;
+        ctx.beginPath();
+        ctx.arc(f.x - camX, f.y - camY, Math.max(2, pulseSize), 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Desenhar Cobras com Efeito Gradiente/Glow Suave
+    for (const snake of snakes) {
+        // Começa desenhando do rabo para a cabeça, assim a cabeça fica sempre por cima visualmente
+        for (let i = snake.body.length - 1; i >= 0; i--) {
+            const part = snake.body[i];
+
+            if (part.x - camX < -30 || part.x - camX > canvas.width + 30 ||
+                part.y - camY < -30 || part.y - camY > canvas.height + 30) continue;
+
+            const isHead = i === 0;
+            ctx.fillStyle = isHead ? "#ffffff" : snake.color;
+            ctx.shadowBlur = isHead ? 22 : 8;
+            ctx.shadowColor = snake.color;
+
+            ctx.beginPath();
+            // Diminui levemente o tamanho do corpo em direção ao rabo para um design elegante
+            const currentRadius = isHead ? HEAD_RADIUS : Math.max(4, BODY_RADIUS - (i * 0.08));
+            ctx.arc(part.x - camX, part.y - camY, currentRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Detalhe de design: Olhos na cabeça da cobra do jogador e bots
+            if (isHead) {
+                ctx.fillStyle = "#000000";
+                ctx.shadowBlur = 0;
+                ctx.beginPath();
+                // Olho esquerdo e direito simplificados orientados na direção do vetor
+                ctx.arc(part.x - camX + snake.dir.y*4, part.y - camY - snake.dir.x*4, 2.5, 0, Math.PI * 2);
+                ctx.arc(part.x - camX - snake.dir.y*4, part.y - camY + snake.dir.x*4, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+
+    // Partículas de Morte Estilo Explosão Estelar
+    for (const p of particles) {
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x - camX, p.y - camY, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    ctx.shadowBlur = 0;
+    document.getElementById("score").innerText = "Pontos: " + Math.floor(player.score);
+    document.getElementById("bots").innerText = "Bots vivos: " + (snakes.length - 1);
+}
+
+function loop() {
+    if (gameOver) return;
+
+    for (const snake of snakes) {
+        if (snake.bot) updateBot(snake);
+    }
+
+    const deaths = [];
+
+    for (const snake of snakes) {
+        const hitWall = moveSnake(snake);
+        if (hitWall) {
+            deaths.push(snake);
+            continue;
+        }
+        checkFood(snake);
+    }
+
+    for (const snake of snakes) {
+        if (!deaths.includes(snake) && headHitsBodyOfOthers(snake)) deaths.push(snake);
+    }
+
+    // Processa o jogador primeiro para garantir que o game over
+    // pare o loop antes de desenhar com referências inconsistentes
+    if (deaths.includes(player)) {
+        handleDeath(player);
+        if (gameOver) return;
+    }
+
+    for (const snake of deaths) {
+        if (snake === player) continue;
+        handleDeath(snake);
+    }
+
+    updateParticles();
+    draw();
+    rafId = requestAnimationFrame(loop);
+}
+
+document.getElementById("btnRestart").addEventListener("touchstart", e => {
+    e.preventDefault();
+    resetGame();
+}, { passive: false });
+document.getElementById("btnRestart").addEventListener("click", () => {
+    resetGame();
+});
+
+resetGame();
+</script>
+</body>
+</html>
