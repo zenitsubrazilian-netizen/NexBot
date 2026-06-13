@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexBot — Forca</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .back { align-self: flex-start; color: #7b2ff7; text-decoration: none; font-size: 0.9rem; margin-bottom: 32px; display: flex; align-items: center; gap: 6px; }
+    .back:hover { color: #00d4ff; }
+    h1 { font-size: 2rem; background: linear-gradient(135deg, #00d4ff, #7b2ff7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+    .subtitle { color: #888; margin-bottom: 32px; font-size: 0.9rem; }
+    .game-container { width: 100%; max-width: 620px; }
+    .gallows {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .gallows svg { filter: drop-shadow(0 0 8px rgba(123,47,247,0.3)); }
+    .word-display {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .letter-box {
+      width: 40px;
+      height: 50px;
+      border-bottom: 3px solid #7b2ff7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      transition: color 0.3s;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      background: #1a1a2e;
+      border-radius: 10px;
+      border: 1px solid #2a2a4a;
+    }
+    .errors { color: #f44336; font-weight: 700; }
+    .hint { color: #888; font-size: 0.85rem; }
+    .keyboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .key {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      border: 2px solid #2a2a4a;
+      background: #1a1a2e;
+      color: #ddd;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .key:hover:not(.used) { border-color: #7b2ff7; background: #2a1a4a; color: #fff; }
+    .key.correct { border-color: #00c853; background: rgba(0,200,83,0.15); color: #00c853; cursor: not-allowed; }
+    .key.wrong { border-color: #f44336; background: rgba(244,67,54,0.1); color: #f44336; cursor: not-allowed; }
+    .key.used { cursor: not-allowed; opacity: 0.4; }
+    .status-msg {
+      text-align: center;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .status-msg.win { background: rgba(0,200,83,0.1); border: 1px solid #00c853; color: #00c853; display: block; }
+    .status-msg.lose { background: rgba(244,67,54,0.1); border: 1px solid #f44336; color: #f44336; display: block; }
+    .btn-restart { width: 100%; padding: 14px; border: none; border-radius: 10px; background: linear-gradient(135deg, #00d4ff, #7b2ff7); color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; display: none; }
+    .btn-restart:hover { opacity: 0.85; }
+    .btn-restart.show { display: block; }
+  </style>
+</head>
+<body>
+  <a class="back" href="../">← Voltar</a>
+  <h1>🎮 Forca</h1>
+  <p class="subtitle">Descubra a palavra antes de acabar as tentativas!</p>
+  <div class="game-container">
+    <div class="gallows">
+      <svg width="160" height="180" viewBox="0 0 160 180">
+        <line x1="10" y1="175" x2="150" y2="175" stroke="#444" stroke-width="4" stroke-linecap="round"/>
+        <line x1="40" y1="175" x2="40" y2="10" stroke="#444" stroke-width="4" stroke-linecap="round"/>
+        <line x1="40" y1="10" x2="100" y2="10" stroke="#444" stroke-width="4" stroke-linecap="round"/>
+        <line x1="100" y1="10" x2="100" y2="35" stroke="#444" stroke-width="4" stroke-linecap="round"/>
+        <circle id="head" cx="100" cy="50" r="15" stroke="#f44336" stroke-width="3" fill="none" display="none"/>
+        <line id="body" x1="100" y1="65" x2="100" y2="115" stroke="#f44336" stroke-width="3" stroke-linecap="round" display="none"/>
+        <line id="arm1" x1="100" y1="80" x2="75" y2="100" stroke="#f44336" stroke-width="3" stroke-linecap="round" display="none"/>
+        <line id="arm2" x1="100" y1="80" x2="125" y2="100" stroke="#f44336" stroke-width="3" stroke-linecap="round" display="none"/>
+        <line id="leg1" x1="100" y1="115" x2="75" y2="145" stroke="#f44336" stroke-width="3" stroke-linecap="round" display="none"/>
+        <line id="leg2" x1="100" y1="115" x2="125" y2="145" stroke="#f44336" stroke-width="3" stroke-linecap="round" display="none"/>
+      </svg>
+    </div>
+    <div class="word-display" id="wordDisplay"></div>
+    <div class="info-row">
+      <span class="errors" id="errorsDisplay">❌ Erros: 0/6</span>
+      <span class="hint" id="wrongLetters">Letras erradas: —</span>
+    </div>
+    <div class="status-msg" id="statusMsg"></div>
+    <div class="keyboard" id="keyboard"></div>
+    <button class="btn-restart" id="btnRestart" onclick="init()">Jogar novamente 🔄</button>
+  </div>
+  <script>
+    const PALAVRAS = ['BANANA','COMPUTADOR','WHATSAPP','AMIZADE','AVENTURA','BORBOLETA','CHOCOLATE','DIAMANTE','ELEFANTE','FLORESTA','GIRAFA','HARMONIA','INTERNET','JARDIM','LIBERDADE','MONTANHA','NATUREZA','OCEANO','PAISAGEM','RESPEITO','SAUDADE','TRABALHO','UNIVERSO','VITORIA','XADREZ','ZEBRA','ARQUIVO','BONECA','CACHORRO','ESCOLA','FAMILIA','GAVETA','HOSPITAL','JANELA','LARANJA','MUSICA','NUVEM','OVELHA','QUARTO','ROCHA','TARTARUGA','URSO','VENTO','ABELHA','BARCO'];
+    const PARTS = ['head','body','arm1','arm2','leg1','leg2'];
+    let word = '', guessed = [], wrong = [], gameOver = false;
+    function init() {
+      word = PALAVRAS[Math.floor(Math.random() * PALAVRAS.length)];
+      guessed = []; wrong = []; gameOver = false;
+      PARTS.forEach(p => document.getElementById(p).setAttribute('display','none'));
+      document.getElementById('statusMsg').className = 'status-msg';
+      document.getElementById('statusMsg').textContent = '';
+      document.getElementById('btnRestart').classList.remove('show');
+      renderWord(); renderKeyboard(); updateInfo();
+    }
+    function renderWord() {
+      const d = document.getElementById('wordDisplay');
+      d.innerHTML = word.split('').map(l => `<div class="letter-box">${guessed.includes(l) ? l : ''}</div>`).join('');
+    }
+    function renderKeyboard() {
+      const kb = document.getElementById('keyboard');
+      kb.innerHTML = '';
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l => {
+        const btn = document.createElement('button');
+        btn.className = 'key';
+        btn.textContent = l;
+        if (guessed.includes(l)) btn.classList.add('correct', 'used');
+        else if (wrong.includes(l)) btn.classList.add('wrong', 'used');
+        else btn.onclick = () => guess(l);
+        kb.appendChild(btn);
+      });
+    }
+    function updateInfo() {
+      document.getElementById('errorsDisplay').textContent = `❌ Erros: ${wrong.length}/6`;
+      document.getElementById('wrongLetters').textContent = wrong.length ? `Erradas: ${wrong.join(', ')}` : 'Letras erradas: —';
+    }
+    function guess(l) {
+      if (gameOver) return;
+      if (word.includes(l)) guessed.push(l);
+      else wrong.push(l);
+      if (wrong.length <= 6) { document.getElementById(PARTS[wrong.length - 1]).setAttribute('display','block'); }
+      renderWord(); renderKeyboard(); updateInfo();
+      const won = word.split('').every(c => guessed.includes(c));
+      if (won) { endGame(true); return; }
+      if (wrong.length >= 6) { endGame(false); }
+    }
+    function endGame(won) {
+      gameOver = true;
+      const msg = document.getElementById('statusMsg');
+      if (won) { msg.className = 'status-msg win'; msg.textContent = '🏆 Parabéns! Você acertou a palavra!'; }
+      else { msg.className = 'status-msg lose'; msg.textContent = `💀 Fim de jogo! A palavra era: ${word}`; }
+      document.getElementById('btnRestart').classList.add('show');
+    }
+    document.addEventListener('keydown', e => {
+      const l = e.key.toUpperCase();
+      if (/^[A-Z]$/.test(l) && !gameOver) guess(l);
+    });
+    init();
+  </script>
+</body>
+</html>
