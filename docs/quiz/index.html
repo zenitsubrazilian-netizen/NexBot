@@ -2,61 +2,64 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>NexBot — Quiz</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
       font-family: 'Segoe UI', sans-serif;
       background: #0f0f1a;
       color: #fff;
       min-height: 100vh;
+      width: 100%;
+      overflow-x: hidden;
+      padding: 20px 16px 40px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 20px;
     }
     .back {
       align-self: flex-start;
       color: #7b2ff7;
       text-decoration: none;
-      font-size: 0.9rem;
-      margin-bottom: 32px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      padding: 8px 0;
     }
-    .back:hover { color: #00d4ff; }
     h1 {
-      font-size: 2rem;
+      font-size: 1.8rem;
       background: linear-gradient(135deg, #00d4ff, #7b2ff7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
+      text-align: center;
     }
-    .subtitle { color: #888; margin-bottom: 40px; font-size: 0.9rem; }
+    .subtitle {
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
     .quiz-box {
-      background: #1a1a2e;
-      border: 1px solid #2a2a4a;
-      border-radius: 16px;
-      padding: 32px;
       width: 100%;
-      max-width: 620px;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
-    .progress {
+    .progress-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      font-size: 0.85rem;
     }
-    .progress-text { color: #888; font-size: 0.85rem; }
+    .progress-text { color: #888; }
     .score { color: #00d4ff; font-weight: 700; }
     .progress-bar {
       width: 100%;
       height: 4px;
       background: #2a2a4a;
       border-radius: 2px;
-      margin-bottom: 28px;
       overflow: hidden;
     }
     .progress-fill {
@@ -71,37 +74,56 @@
       font-weight: 700;
       letter-spacing: 1px;
       text-transform: uppercase;
-      margin-bottom: 12px;
     }
     .question {
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 600;
       line-height: 1.6;
-      margin-bottom: 28px;
       color: #eee;
+      background: #1a1a2e;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #2a2a4a;
     }
-    .options { display: flex; flex-direction: column; gap: 12px; }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
     .option {
-      background: #0f0f1a;
+      background: #1a1a2e;
       border: 2px solid #2a2a4a;
       border-radius: 10px;
-      padding: 14px 18px;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
+      padding: 14px 16px;
       font-size: 0.95rem;
-      text-align: left;
       color: #ddd;
       display: flex;
       align-items: center;
       gap: 12px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+      transition: border-color 0.15s, background 0.15s;
     }
-    .option:hover:not(.disabled) { border-color: #7b2ff7; background: #1a1a2e; }
-    .option.correct { border-color: #00c853; background: rgba(0,200,83,0.1); color: #fff; }
-    .option.wrong { border-color: #f44336; background: rgba(244,67,54,0.1); color: #fff; }
-    .option.disabled { cursor: not-allowed; opacity: 0.7; }
+    .option.pressed {
+      background: #2a1a4a;
+      border-color: #7b2ff7;
+    }
+    .option.correct {
+      border-color: #00c853;
+      background: rgba(0,200,83,0.1);
+      color: #fff;
+    }
+    .option.wrong {
+      border-color: #f44336;
+      background: rgba(244,67,54,0.1);
+      color: #fff;
+    }
+    .option.disabled { pointer-events: none; }
     .letter {
       width: 28px;
       height: 28px;
+      min-width: 28px;
       border-radius: 6px;
       background: #2a2a4a;
       display: flex;
@@ -109,23 +131,29 @@
       justify-content: center;
       font-weight: 700;
       font-size: 0.85rem;
-      flex-shrink: 0;
     }
     .feedback {
-      margin-top: 20px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       border-radius: 10px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       line-height: 1.5;
       display: none;
     }
-    .feedback.show { display: block; }
-    .feedback.correct-fb { background: rgba(0,200,83,0.1); border: 1px solid #00c853; color: #00c853; }
-    .feedback.wrong-fb { background: rgba(244,67,54,0.1); border: 1px solid #f44336; color: #f44336; }
+    .feedback.correct-fb {
+      background: rgba(0,200,83,0.1);
+      border: 1px solid #00c853;
+      color: #00c853;
+      display: block;
+    }
+    .feedback.wrong-fb {
+      background: rgba(244,67,54,0.1);
+      border: 1px solid #f44336;
+      color: #f44336;
+      display: block;
+    }
     .btn-next {
-      margin-top: 20px;
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       border: none;
       border-radius: 10px;
       background: linear-gradient(135deg, #00d4ff, #7b2ff7);
@@ -133,22 +161,27 @@
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
+      touch-action: manipulation;
       display: none;
-      transition: opacity 0.2s;
     }
-    .btn-next:hover { opacity: 0.85; }
     .btn-next.show { display: block; }
     .result {
+      width: 100%;
+      max-width: 480px;
       text-align: center;
       display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
     }
-    .result.show { display: block; }
-    .result-icon { font-size: 4rem; margin-bottom: 16px; }
-    .result-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
-    .result-score { font-size: 1.1rem; color: #888; margin-bottom: 28px; }
+    .result.show { display: flex; }
+    .result-icon { font-size: 4rem; }
+    .result-title { font-size: 1.5rem; font-weight: 800; }
+    .result-score { font-size: 1rem; color: #888; }
     .result-score span { color: #00d4ff; font-weight: 700; }
     .btn-restart {
-      padding: 14px 32px;
+      width: 100%;
+      padding: 16px;
       border: none;
       border-radius: 10px;
       background: linear-gradient(135deg, #00d4ff, #7b2ff7);
@@ -156,35 +189,38 @@
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
-      transition: opacity 0.2s;
+      touch-action: manipulation;
+      margin-top: 8px;
     }
-    .btn-restart:hover { opacity: 0.85; }
   </style>
 </head>
 <body>
   <a class="back" href="../">← Voltar</a>
   <h1>🤖 Quiz</h1>
   <p class="subtitle">Responda as perguntas e teste seu conhecimento!</p>
-  <div class="quiz-box">
-    <div id="game">
-      <div class="progress">
-        <span class="progress-text" id="qNum">Pergunta 1 de 10</span>
-        <span class="score" id="scoreDisplay">✅ 0</span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-      <div class="category" id="category"></div>
-      <div class="question" id="question"></div>
-      <div class="options" id="options"></div>
-      <div class="feedback" id="feedback"></div>
-      <button class="btn-next" id="btnNext">Próxima →</button>
+
+  <div class="quiz-box" id="game">
+    <div class="progress-row">
+      <span class="progress-text" id="qNum">Pergunta 1 de 10</span>
+      <span class="score" id="scoreDisplay">✅ 0</span>
     </div>
-    <div class="result" id="result">
-      <div class="result-icon" id="resultIcon"></div>
-      <div class="result-title" id="resultTitle"></div>
-      <div class="result-score" id="resultScore"></div>
-      <button class="btn-restart" onclick="restart()">Jogar novamente 🔄</button>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
     </div>
+    <div class="category" id="category"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn-next" id="btnNext">Próxima →</button>
   </div>
+
+  <div class="result" id="result">
+    <div class="result-icon" id="resultIcon"></div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-score" id="resultScore"></div>
+    <button class="btn-restart" id="btnRestart">Jogar novamente 🔄</button>
+  </div>
+
   <script>
     const QUESTIONS = [
       { category: 'Ciências', question: 'Qual é o planeta mais próximo do Sol?', options: ['Vênus', 'Mercúrio', 'Marte', 'Terra'], correct: 1, explanation: 'Mercúrio é o planeta mais próximo do Sol no Sistema Solar.' },
@@ -192,73 +228,92 @@
       { category: 'Matemática', question: 'Quanto é 15 × 8?', options: ['110', '120', '130', '115'], correct: 1, explanation: '15 × 8 = 120.' },
       { category: 'História', question: 'Em que ano o Brasil foi descoberto?', options: ['1492', '1500', '1510', '1488'], correct: 1, explanation: 'O Brasil foi descoberto em 1500 por Pedro Álvares Cabral.' },
       { category: 'Natureza', question: 'Qual animal é conhecido como o rei da selva?', options: ['Tigre', 'Leopardo', 'Leão', 'Jaguar'], correct: 2, explanation: 'O leão é tradicionalmente chamado de rei da selva.' },
-      { category: 'Tecnologia', question: 'O que significa a sigla "HTML"?', options: ['HyperText Markup Language', 'High Transfer Markup Language', 'HyperText Modern Language', 'Home Text Markup Language'], correct: 0, explanation: 'HTML significa HyperText Markup Language, a linguagem base da web.' },
+      { category: 'Tecnologia', question: 'O que significa a sigla HTML?', options: ['HyperText Markup Language', 'High Transfer Markup Language', 'HyperText Modern Language', 'Home Text Markup Language'], correct: 0, explanation: 'HTML significa HyperText Markup Language, a linguagem base da web.' },
       { category: 'Cultura Pop', question: 'Qual personagem vive em um abacaxi embaixo do mar?', options: ['Patrick', 'Lula Molusco', 'Bob Esponja', 'Sandy'], correct: 2, explanation: 'Bob Esponja mora em uma casa em forma de abacaxi em Fundo do Mar.' },
       { category: 'Ciências', question: 'Quantos ossos tem o corpo humano adulto?', options: ['206', '212', '198', '220'], correct: 0, explanation: 'O corpo humano adulto possui 206 ossos.' },
-      { category: 'Português', question: 'Qual é o plural de "cidadão"?', options: ['Cidadões', 'Cidadãos', 'Cidadãoes', 'Cidadanes'], correct: 1, explanation: 'O plural de cidadão é cidadãos.' },
-      { category: 'Esportes', question: 'Quantos jogadores tem um time de futebol em campo?', options: ['10', '12', '11', '9'], correct: 2, explanation: 'Cada time de futebol tem 11 jogadores em campo.' }
+      { category: 'Português', question: 'Qual é o plural de cidadão?', options: ['Cidadões', 'Cidadãos', 'Cidadãoes', 'Cidadanes'], correct: 1, explanation: 'O plural de cidadão é cidadãos.' },
+      { category: 'Esportes', question: 'Quantos jogadores tem um time de futebol em campo?', options: ['10', '12', '11', '9'], correct: 2, explanation: 'Cada time de futebol tem 11 jogadores em campo.' },
+      { category: 'Ciências', question: 'Qual é o maior planeta do Sistema Solar?', options: ['Saturno', 'Urano', 'Júpiter', 'Netuno'], correct: 2, explanation: 'Júpiter é o maior planeta do Sistema Solar.' },
+      { category: 'Geografia', question: 'Qual é o maior país do mundo em extensão territorial?', options: ['EUA', 'China', 'Canadá', 'Rússia'], correct: 3, explanation: 'A Rússia é o maior país do mundo com mais de 17 milhões de km².' },
+      { category: 'Cultura Pop', question: 'Quantas Joias do Infinito existem nos filmes da Marvel?', options: ['5', '6', '7', '4'], correct: 1, explanation: 'Existem 6 Joias do Infinito: Mente, Alma, Espaço, Realidade, Poder e Tempo.' },
+      { category: 'Matemática', question: 'Qual é a raiz quadrada de 144?', options: ['11', '14', '12', '13'], correct: 2, explanation: '12 × 12 = 144, portanto a raiz quadrada de 144 é 12.' },
+      { category: 'História', question: 'Quem foi o primeiro presidente do Brasil?', options: ['Dom Pedro II', 'Getúlio Vargas', 'Deodoro da Fonseca', 'Floriano Peixoto'], correct: 2, explanation: 'Marechal Deodoro da Fonseca foi o primeiro presidente do Brasil em 1889.' }
     ];
-    let current = 0, score = 0, answered = false;
-    function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
     let questions = [];
+    let current = 0;
+    let score = 0;
+    let answered = false;
+
+    function shuffle(arr) {
+      return [...arr].sort(() => Math.random() - 0.5);
+    }
+
     function init() {
-      questions = shuffle(QUESTIONS);
-      current = 0; score = 0; answered = false;
-      document.getElementById('game').style.display = 'block';
+      questions = shuffle(QUESTIONS).slice(0, 10);
+      current = 0;
+      score = 0;
+      answered = false;
+      document.getElementById('game').style.display = 'flex';
       document.getElementById('result').classList.remove('show');
       render();
     }
+
     function render() {
+      answered = false;
       const q = questions[current];
-      document.getElementById('qNum').textContent = `Pergunta ${current + 1} de ${questions.length}`;
+      const total = questions.length;
+      document.getElementById('qNum').textContent = `Pergunta ${current + 1} de ${total}`;
       document.getElementById('scoreDisplay').textContent = `✅ ${score}`;
-      document.getElementById('progressFill').style.width = `${(current / questions.length) * 100}%`;
+      document.getElementById('progressFill').style.width = `${(current / total) * 100}%`;
       document.getElementById('category').textContent = q.category;
       document.getElementById('question').textContent = q.question;
+      document.getElementById('feedback').className = 'feedback';
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('btnNext').classList.remove('show');
       const letters = ['A', 'B', 'C', 'D'];
       const opts = document.getElementById('options');
       opts.innerHTML = '';
       q.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'option';
-        btn.innerHTML = `<span class="letter">${letters[i]}</span>${opt}`;
-        btn.onclick = () => answer(i, q.correct, q.explanation);
-        opts.appendChild(btn);
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.innerHTML = `<span class="letter">${letters[i]}</span>${opt}`;
+        div.addEventListener('touchstart', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (answered) return;
+          this.classList.add('pressed');
+          handleAnswer(i, q.correct, q.explanation);
+        }, { passive: false });
+        opts.appendChild(div);
       });
-      const fb = document.getElementById('feedback');
-      fb.className = 'feedback'; fb.textContent = '';
-      document.getElementById('btnNext').classList.remove('show');
-      answered = false;
     }
-    function answer(idx, correct, explanation) {
+
+    function handleAnswer(idx, correct, explanation) {
       if (answered) return;
       answered = true;
       const opts = document.querySelectorAll('.option');
       opts.forEach(o => o.classList.add('disabled'));
+      opts.forEach(o => o.classList.remove('pressed'));
       const fb = document.getElementById('feedback');
       if (idx === correct) {
         score++;
         opts[idx].classList.add('correct');
-        fb.className = 'feedback correct-fb show';
+        fb.className = 'feedback correct-fb';
         fb.textContent = '✅ Correto! ' + explanation;
       } else {
         opts[idx].classList.add('wrong');
         opts[correct].classList.add('correct');
-        fb.className = 'feedback wrong-fb show';
+        fb.className = 'feedback wrong-fb';
         fb.textContent = '❌ Errado! ' + explanation;
       }
       document.getElementById('scoreDisplay').textContent = `✅ ${score}`;
       document.getElementById('btnNext').classList.add('show');
     }
-    document.getElementById('btnNext').onclick = () => {
-      current++;
-      if (current >= questions.length) showResult();
-      else render();
-    };
+
     function showResult() {
       document.getElementById('game').style.display = 'none';
-      const r = document.getElementById('result');
-      r.classList.add('show');
+      document.getElementById('result').classList.add('show');
       const pct = Math.round((score / questions.length) * 100);
       let icon = '😔', title = 'Pode melhorar...';
       if (pct >= 90) { icon = '🏆'; title = 'Incrível! Você é fera!'; }
@@ -266,9 +321,21 @@
       else if (pct >= 50) { icon = '🙂'; title = 'Razoável!'; }
       document.getElementById('resultIcon').textContent = icon;
       document.getElementById('resultTitle').textContent = title;
-      document.getElementById('resultScore').innerHTML = `Você acertou <span>${score} de ${questions.length}</span> perguntas (${pct}%)`;
+      document.getElementById('resultScore').innerHTML = `Você acertou <span>${score} de ${questions.length}</span> (${pct}%)`;
     }
-    function restart() { init(); }
+
+    document.getElementById('btnNext').addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      current++;
+      if (current >= questions.length) showResult();
+      else render();
+    }, { passive: false });
+
+    document.getElementById('btnRestart').addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      init();
+    }, { passive: false });
+
     init();
   </script>
 </body>
