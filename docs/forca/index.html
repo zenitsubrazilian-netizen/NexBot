@@ -129,7 +129,11 @@
     <button class="btn-restart" id="btnRestart" onclick="init()">Jogar novamente 🔄</button>
   </div>
   <script>
-    const PALAVRAS = ['BANANA','COMPUTADOR','WHATSAPP','AMIZADE','AVENTURA','BORBOLETA','CHOCOLATE','DIAMANTE','ELEFANTE','FLORESTA','GIRAFA','HARMONIA','INTERNET','JARDIM','LIBERDADE','MONTANHA','NATUREZA','OCEANO','PAISAGEM','RESPEITO','SAUDADE','TRABALHO','UNIVERSO','VITORIA','XADREZ','ZEBRA','ARQUIVO','BONECA','CACHORRO','ESCOLA','FAMILIA','GAVETA','HOSPITAL','JANELA','LARANJA','MUSICA','NUVEM','OVELHA','QUARTO','ROCHA','TARTARUGA','URSO','VENTO','ABELHA','BARCO'];
+    const PALAVRAS_RAW = ['BANANA','COMPUTADOR','WHATSAPP','AMIZADE','AVENTURA','BORBOLETA','CHOCOLATE','DIAMANTE','ELEFANTE','FLORESTA','GIRAFA','HARMONIA','INTERNET','JARDIM','LIBERDADE','MONTANHA','NATUREZA','OCEANO','PAISAGEM','RESPEITO','SAUDADE','TRABALHO','UNIVERSO','VITORIA','XADREZ','ZEBRA','ARQUIVO','BONECA','CACHORRO','ESCOLA','FAMILIA','GAVETA','HOSPITAL','JANELA','LARANJA','MUSICA','NUVEM','OVELHA','QUARTO','ROCHA','TARTARUGA','URSO','VENTO','ABELHA','BARCO','FOGUETE','PLANETA','ESTRELA','GUITARRA','PALMEIRA','BORRACHA','MOCHILA','ESPELHO','CHAPEU','TECLADO','RELAMPAGO','SERPENTE','PINGUIM','MACACO','COELHO','POLICIA','CAPITAO','CASTELO','DRAGAO','PIRATA'];
+    function normalize(str) {
+      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+    }
+    const PALAVRAS = PALAVRAS_RAW.map(normalize);
     const PARTS = ['head','body','arm1','arm2','leg1','leg2'];
     let word = '', guessed = [], wrong = [], gameOver = false;
     function init() {
@@ -143,7 +147,10 @@
     }
     function renderWord() {
       const d = document.getElementById('wordDisplay');
-      d.innerHTML = word.split('').map(l => `<div class="letter-box">${guessed.includes(l) ? l : ''}</div>`).join('');
+      d.innerHTML = word.split('').map(l => {
+        const revealed = guessed.includes(l);
+        return `<div class="letter-box" style="${revealed ? 'border-color:#00c853;color:#00c853' : ''}">${revealed ? l : ''}</div>`;
+      }).join('');
     }
     function renderKeyboard() {
       const kb = document.getElementById('keyboard');
@@ -152,9 +159,9 @@
         const btn = document.createElement('button');
         btn.className = 'key';
         btn.textContent = l;
-        if (guessed.includes(l)) btn.classList.add('correct', 'used');
-        else if (wrong.includes(l)) btn.classList.add('wrong', 'used');
-        else btn.onclick = () => guess(l);
+        if (guessed.includes(l)) { btn.classList.add('correct', 'used'); }
+        else if (wrong.includes(l)) { btn.classList.add('wrong', 'used'); }
+        else { btn.onclick = () => guess(l); }
         kb.appendChild(btn);
       });
     }
@@ -164,9 +171,16 @@
     }
     function guess(l) {
       if (gameOver) return;
-      if (word.includes(l)) guessed.push(l);
-      else wrong.push(l);
-      if (wrong.length <= 6) { document.getElementById(PARTS[wrong.length - 1]).setAttribute('display','block'); }
+      if (guessed.includes(l) || wrong.includes(l)) return;
+      if (word.includes(l)) {
+        guessed.push(l);
+      } else {
+        wrong.push(l);
+        const partIndex = wrong.length - 1;
+        if (partIndex < PARTS.length) {
+          document.getElementById(PARTS[partIndex]).setAttribute('display', 'block');
+        }
+      }
       renderWord(); renderKeyboard(); updateInfo();
       const won = word.split('').every(c => guessed.includes(c));
       if (won) { endGame(true); return; }
@@ -180,7 +194,7 @@
       document.getElementById('btnRestart').classList.add('show');
     }
     document.addEventListener('keydown', e => {
-      const l = e.key.toUpperCase();
+      const l = e.key.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       if (/^[A-Z]$/.test(l) && !gameOver) guess(l);
     });
     init();
