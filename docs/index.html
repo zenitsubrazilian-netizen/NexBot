@@ -32,10 +32,10 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 24px;
       width: 100%;
-      max-width: 800px;
+      max-width: 1000px;
     }
     .card {
       background: #1a1a2e;
@@ -53,6 +53,10 @@
       transform: translateY(-6px);
       border-color: #7b2ff7;
       box-shadow: 0 8px 32px rgba(123, 47, 247, 0.3);
+    }
+    .card.fight:hover {
+      border-color: #ff3b30;
+      box-shadow: 0 8px 32px rgba(255, 59, 48, 0.3);
     }
     .card-icon {
       font-size: 3rem;
@@ -80,6 +84,9 @@
       margin-top: 12px;
       letter-spacing: 1px;
       text-transform: uppercase;
+    }
+    .badge.fight {
+      background: linear-gradient(135deg, #ff3b30, #ff9f0a);
     }
     footer {
       margin-top: 60px;
@@ -109,6 +116,12 @@
       <div class="card-title">Slither Snake</div>
       <div class="card-desc">Controle sua cobra neon, coma os orbes e cresça mais que os bots sem bater!</div>
       <span class="badge">Jogar agora</span>
+    </a>
+    <a class="card fight" href="./luta/">
+      <span class="card-icon">⚔️</span>
+      <div class="card-title">NexFight</div>
+      <div class="card-desc">Jogo de luta 2D estilo Mortal Kombat! Escolha seu personagem e enfrente a IA ou um amigo no mesmo dispositivo!</div>
+      <span class="badge fight">Jogar agora</span>
     </a>
   </div>
   <footer>NexBot &copy; 2026 — Feito com 💜</footer>
