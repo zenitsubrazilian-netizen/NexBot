@@ -6,7 +6,6 @@
 <title>NexBot — Slither Snake</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
 body {
   background: #050508;
   font-family: 'Segoe UI', Roboto, sans-serif;
@@ -14,76 +13,51 @@ body {
   width: 100vw;
   height: 100vh;
 }
-
 canvas { display: block; }
 
-/* ── BOTÃO VOLTAR ── */
 .back {
-  position: fixed;
-  top: 14px;
-  right: 14px;
-  z-index: 50;
-  color: #fff;
-  background: rgba(255,255,255,0.07);
+  position: fixed; top: 14px; right: 14px; z-index: 50;
+  color: #fff; background: rgba(255,255,255,0.07);
   border: 1px solid rgba(255,255,255,0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 7px 13px;
-  border-radius: 10px;
-  letter-spacing: 0.5px;
-  transition: background 0.2s;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  text-decoration: none; font-size: 0.8rem; font-weight: 700;
+  padding: 7px 13px; border-radius: 10px; letter-spacing: 0.5px;
 }
-.back:active { background: rgba(255,255,255,0.14); }
 
-/* ── HUD ── */
 .hud {
-  position: fixed;
-  top: 14px;
-  left: 14px;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  pointer-events: none;
-  user-select: none;
+  position: fixed; top: 14px; left: 14px; z-index: 50;
+  display: flex; flex-direction: column; gap: 6px;
+  pointer-events: none; user-select: none;
 }
 .hud-card {
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 10px;
-  padding: 7px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px); border-radius: 10px;
+  padding: 7px 14px; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.8px; display: flex; align-items: center;
+  gap: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.5);
 }
 #hud-score { border-left: 3px solid #00ff88; color: #00ff88; }
 #hud-bots  { border-left: 3px solid #00d4ff; color: #00d4ff; }
 
-/* ── JOYSTICK ── */
+/* botão mute */
+#btn-mute {
+  position: fixed; bottom: 36px; right: 14px; z-index: 50;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  color: #fff; font-size: 1.1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation;
+}
+
 #joystick-zone {
-  position: fixed;
-  bottom: 36px;
-  left: 36px;
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
+  position: fixed; bottom: 36px; left: 36px;
+  width: 130px; height: 130px; border-radius: 50%;
   background: rgba(255,255,255,0.04);
   border: 2px solid rgba(255,255,255,0.12);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 50;
-  touch-action: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  z-index: 50; touch-action: none;
+  display: flex; align-items: center; justify-content: center;
   box-shadow: 0 0 30px rgba(0,255,136,0.08), inset 0 0 20px rgba(0,0,0,0.3);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -92,113 +66,55 @@ canvas { display: block; }
   box-shadow: 0 0 30px rgba(0,255,136,0.25), inset 0 0 20px rgba(0,0,0,0.3);
 }
 #joystick-handle {
-  position: absolute;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  position: absolute; width: 48px; height: 48px; border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #ffffff, #888);
   box-shadow: 0 4px 16px rgba(0,0,0,0.5), 0 0 8px rgba(255,255,255,0.15);
   pointer-events: none;
-  transition: transform 0.05s;
 }
 
-/* ── TELA DE INÍCIO ── */
 #screen-start {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
+  position: fixed; inset: 0; z-index: 80;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 18px;
   background: radial-gradient(ellipse at 50% 40%, rgba(0,255,136,0.07) 0%, rgba(5,5,8,0.98) 70%);
-  backdrop-filter: blur(4px);
-  text-align: center;
-  padding: 24px;
+  text-align: center; padding: 24px;
 }
 #screen-start .logo {
-  font-size: 2.6rem;
-  font-weight: 900;
+  font-size: 2.6rem; font-weight: 900;
   background: linear-gradient(135deg, #00ff88, #00d4ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   letter-spacing: 2px;
-  text-shadow: none;
-  line-height: 1;
 }
-#screen-start .subtitle {
-  color: #aaa;
-  font-size: 0.95rem;
-  max-width: 280px;
-  line-height: 1.5;
-}
-#screen-start .tip {
-  color: #555;
-  font-size: 0.78rem;
-  max-width: 260px;
-  line-height: 1.5;
-}
-.btn-play {
-  padding: 15px 48px;
-  border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #00ff88, #00d4ff);
-  color: #050508;
-  font-size: 1.1rem;
-  font-weight: 900;
-  cursor: pointer;
-  touch-action: manipulation;
-  letter-spacing: 1px;
-  box-shadow: 0 0 30px rgba(0,255,136,0.4);
-  transition: transform 0.1s, box-shadow 0.1s;
-}
-.btn-play:active { transform: scale(0.96); box-shadow: 0 0 15px rgba(0,255,136,0.3); }
+#screen-start .subtitle { color: #aaa; font-size: 0.95rem; max-width: 280px; line-height: 1.5; }
+#screen-start .tip      { color: #555; font-size: 0.78rem; max-width: 260px; line-height: 1.5; }
 
-/* ── TELA DE GAME OVER ── */
+.btn-play {
+  padding: 15px 48px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, #00ff88, #00d4ff);
+  color: #050508; font-size: 1.1rem; font-weight: 900;
+  cursor: pointer; touch-action: manipulation; letter-spacing: 1px;
+  box-shadow: 0 0 30px rgba(0,255,136,0.4);
+}
+
 #screen-gameover {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  background: rgba(5,5,8,0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  text-align: center;
-  padding: 24px;
+  position: fixed; inset: 0; z-index: 80;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+  background: rgba(5,5,8,0.85); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px); text-align: center; padding: 24px;
 }
 #screen-gameover.show { display: flex; }
 #screen-gameover h2 {
-  font-size: 2rem;
-  color: #ff3b30;
-  text-shadow: 0 0 24px rgba(255,59,48,0.6);
-  letter-spacing: 2px;
-  margin: 0;
+  font-size: 2rem; color: #ff3b30;
+  text-shadow: 0 0 24px rgba(255,59,48,0.6); letter-spacing: 2px; margin: 0;
 }
-#screen-gameover .go-score {
-  font-size: 1rem;
-  color: #888;
-}
-#screen-gameover .go-score span {
-  color: #00ff88;
-  font-weight: 800;
-  font-size: 1.3rem;
-}
+.go-score { font-size: 1rem; color: #888; }
+.go-score span { color: #00ff88; font-weight: 800; font-size: 1.3rem; }
 .btn-restart {
-  margin-top: 6px;
-  padding: 14px 40px;
-  border: none;
-  border-radius: 14px;
+  margin-top: 6px; padding: 14px 40px; border: none; border-radius: 14px;
   background: linear-gradient(135deg, #00ff88, #00d4ff);
-  color: #050508;
-  font-size: 1rem;
-  font-weight: 900;
-  cursor: pointer;
-  touch-action: manipulation;
+  color: #050508; font-size: 1rem; font-weight: 900;
+  cursor: pointer; touch-action: manipulation;
   box-shadow: 0 0 24px rgba(0,255,136,0.35);
 }
 </style>
@@ -212,20 +128,20 @@ canvas { display: block; }
   <div id="hud-bots"  class="hud-card">🤖 8 bots</div>
 </div>
 
+<button id="btn-mute" title="Mudo/Som">🔊</button>
+
 <div id="joystick-zone">
   <div id="joystick-handle"></div>
 </div>
 
-<!-- Tela de Início -->
 <div id="screen-start">
   <div class="logo">🐍 SLITHER</div>
   <div class="subtitle">Coma os orbes neon, cresça e elimine os bots sem bater nas bordas!</div>
   <button class="btn-play" id="btn-play">▶ JOGAR</button>
-  <div class="tip">Use o joystick (mobile) ou as teclas WASD / setas (PC)</div>
+  <div class="tip">Joystick (mobile) · WASD ou setas (PC)</div>
 </div>
 
-<!-- Tela de Game Over -->
-<div id="screen-gameover" id="screen-gameover">
+<div id="screen-gameover">
   <h2>💀 VOCÊ MORREU</h2>
   <div class="go-score">Pontuação: <span id="final-score">0</span></div>
   <button class="btn-restart" id="btn-restart">🔄 Jogar Novamente</button>
@@ -237,76 +153,191 @@ canvas { display: block; }
 'use strict'
 
 // ══════════════════════════════════════════════
-//  CANVAS & RESIZE
+//  CANVAS
 // ══════════════════════════════════════════════
 const canvas = document.getElementById('c')
 const ctx    = canvas.getContext('2d')
-
-function resize() {
-  canvas.width  = window.innerWidth
-  canvas.height = window.innerHeight
-}
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
 resize()
 window.addEventListener('resize', resize)
 
 // ══════════════════════════════════════════════
+//  ÁUDIO — Web Audio API (sintetizado, sem arquivos)
+// ══════════════════════════════════════════════
+let audioCtx  = null
+let muteState = false
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+  return audioCtx
+}
+
+// tom simples com envelope
+function playTone(freq, type, duration, gain, startFreq) {
+  if (muteState) return
+  try {
+    const ac  = getAudio()
+    const osc = ac.createOscillator()
+    const env = ac.createGain()
+    osc.connect(env)
+    env.connect(ac.destination)
+    osc.type = type
+    osc.frequency.setValueAtTime(startFreq || freq, ac.currentTime)
+    if (startFreq) osc.frequency.exponentialRampToValueAtTime(freq, ac.currentTime + duration * 0.6)
+    env.gain.setValueAtTime(gain, ac.currentTime)
+    env.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + duration)
+    osc.start(ac.currentTime)
+    osc.stop(ac.currentTime + duration)
+  } catch (_) {}
+}
+
+// som de comer comida normal (pop agudo)
+function sfxEat() {
+  playTone(880, 'sine', 0.08, 0.18, 660)
+}
+
+// som de comer comida premium (acorde bonito)
+function sfxEatPremium() {
+  playTone(523, 'sine', 0.18, 0.15, 440)
+  setTimeout(() => playTone(659, 'sine', 0.18, 0.12, 523), 30)
+  setTimeout(() => playTone(784, 'sine', 0.18, 0.10, 659), 70)
+}
+
+// som de morte (queda dramática)
+function sfxDie() {
+  if (muteState) return
+  try {
+    const ac  = getAudio()
+    const osc = ac.createOscillator()
+    const env = ac.createGain()
+    // distorção leve
+    const wave = ac.createWaveShaper()
+    const curve = new Float32Array(256)
+    for (let i = 0; i < 256; i++) {
+      const x = (i * 2) / 256 - 1
+      curve[i] = (Math.PI + 80) * x / (Math.PI + 80 * Math.abs(x))
+    }
+    wave.curve = curve
+    osc.connect(wave)
+    wave.connect(env)
+    env.connect(ac.destination)
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(440, ac.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(55, ac.currentTime + 0.6)
+    env.gain.setValueAtTime(0.3, ac.currentTime)
+    env.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.65)
+    osc.start(ac.currentTime)
+    osc.stop(ac.currentTime + 0.7)
+  } catch (_) {}
+}
+
+// som de eliminar bot (fanfarra curta)
+function sfxKill() {
+  playTone(440, 'square', 0.06, 0.1)
+  setTimeout(() => playTone(554, 'square', 0.06, 0.1), 70)
+  setTimeout(() => playTone(659, 'square', 0.12, 0.12), 140)
+}
+
+// som ambiente pulsante (loop suave)
+let ambientNode = null
+let ambientGain = null
+function startAmbient() {
+  if (muteState) return
+  stopAmbient()
+  try {
+    const ac = getAudio()
+    ambientGain = ac.createGain()
+    ambientGain.gain.value = 0.04
+    ambientGain.connect(ac.destination)
+
+    ambientNode = ac.createOscillator()
+    ambientNode.type = 'sine'
+    ambientNode.frequency.value = 55
+    ambientNode.connect(ambientGain)
+    ambientNode.start()
+
+    // LFO para pulso
+    const lfo = ac.createOscillator()
+    const lfoGain = ac.createGain()
+    lfoGain.gain.value = 0.025
+    lfo.frequency.value = 0.4
+    lfo.connect(lfoGain)
+    lfoGain.connect(ambientGain.gain)
+    lfo.start()
+  } catch (_) {}
+}
+function stopAmbient() {
+  try { ambientNode && ambientNode.stop() } catch (_) {}
+  try { ambientNode && ambientNode.disconnect() } catch (_) {}
+  try { ambientGain && ambientGain.disconnect() } catch (_) {}
+  ambientNode = null; ambientGain = null
+}
+
+// botão mute
+document.getElementById('btn-mute').addEventListener('click', () => {
+  muteState = !muteState
+  document.getElementById('btn-mute').textContent = muteState ? '🔇' : '🔊'
+  if (muteState) stopAmbient()
+  else if (gameRunning) startAmbient()
+})
+
+// ══════════════════════════════════════════════
 //  CONSTANTES
 // ══════════════════════════════════════════════
-const WORLD        = { w: 3200, h: 3200 }
-const FOOD_COUNT   = 180
-const BOT_COUNT    = 8
-const HEAD_R       = 11
-const BODY_R       = 9
-const SEG_GAP      = 8
-const COL_DIST     = 14        // distância de colisão cabeça→corpo
-const PLAYER_SPEED = 3.8
+const WORLD         = { w: 3200, h: 3200 }
+const FOOD_COUNT    = 180
+const BOT_COUNT     = 8
+const HEAD_R        = 11
+const BODY_R        = 9
+const SEG_GAP       = 8
+const PLAYER_SPEED  = 3.8
 const BOT_SPEED_MIN = 2.6
 const BOT_SPEED_MAX = 3.4
-const SELF_COL_SKIP = 20       // ignora os N primeiros segmentos do próprio corpo
+
+// ── SEGMENTOS A IGNORAR NA AUTO-COLISÃO ────────────────────────────────
+// Calculamos quantos segmentos do próprio corpo precisam ser ignorados
+// para a cabeça nunca tocar fisicamente os segmentos próximos.
+// Fórmula: a cabeça percorre PLAYER_SPEED px por frame e cada segmento
+// fica SEG_GAP px atrás do anterior. Adicionamos margem extra generosa.
+const SELF_SKIP = Math.ceil((HEAD_R * 2 + BODY_R * 2) / SEG_GAP) + 6  // ≈ 10
+
+const COL_HEAD_BODY = HEAD_R + BODY_R - 2   // margem de colisão cabeça→corpo alheio
 
 const BOT_COLORS = [
-  '#ff4d6d', '#00d4ff', '#ff9f1c', '#c77dff',
-  '#f72585', '#4cc9f0', '#7bed9f', '#ffd60a',
+  '#ff4d6d','#00d4ff','#ff9f1c','#c77dff',
+  '#f72585','#4cc9f0','#7bed9f','#ffd60a',
 ]
 
 // ══════════════════════════════════════════════
 //  ESTADO
 // ══════════════════════════════════════════════
-let food      = []
-let snakes    = []
-let particles = []
-let player    = null
+let food        = []
+let snakes      = []
+let particles   = []
+let player      = null
 let gameRunning = false
-let rafId     = null
+let rafId       = null
 
 // ══════════════════════════════════════════════
 //  UTILITÁRIOS
 // ══════════════════════════════════════════════
-const rand = (a, b) => Math.random() * (b - a) + a
-const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by)
-
-function randEdgeSafe(margin = 200) {
-  return {
-    x: rand(margin, WORLD.w - margin),
-    y: rand(margin, WORLD.h - margin),
-  }
-}
+const rand    = (a, b) => Math.random() * (b - a) + a
+const hypot   = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by)
+const randPos = (m = 250) => ({ x: rand(m, WORLD.w - m), y: rand(m, WORLD.h - m) })
 
 // ══════════════════════════════════════════════
 //  COMIDA
 // ══════════════════════════════════════════════
 function makeFood(x, y, premium = false) {
-  const p = x !== undefined ? x : rand(30, WORLD.w - 30)
-  const q = y !== undefined ? y : rand(30, WORLD.h - 30)
   return {
-    x: p, y: q,
+    x: x ?? rand(30, WORLD.w - 30),
+    y: y ?? rand(30, WORLD.h - 30),
     size:  premium ? rand(7, 11) : rand(3.5, 5),
     hue:   premium ? rand(280, 340) : rand(120, 200),
     value: premium ? 3 : 1,
     phase: rand(0, Math.PI * 2),
   }
 }
-
 function refillFood() {
   while (food.length < FOOD_COUNT) food.push(makeFood())
 }
@@ -318,10 +349,10 @@ function makeSnake({ bot = false, x, y, color = '#00ff88' } = {}) {
   const sx = x ?? WORLD.w / 2
   const sy = y ?? WORLD.h / 2
   const body = []
+  // inicializa todos no mesmo ponto para evitar efeito mola
   for (let i = 0; i < 14; i++) body.push({ x: sx, y: sy })
   return {
     bot, color,
-    x: sx, y: sy,
     dir: { x: 1, y: 0 },
     speed: bot ? rand(BOT_SPEED_MIN, BOT_SPEED_MAX) : PLAYER_SPEED,
     score: 0,
@@ -331,20 +362,14 @@ function makeSnake({ bot = false, x, y, color = '#00ff88' } = {}) {
 }
 
 // ══════════════════════════════════════════════
-//  MORTE & PARTÍCULAS
+//  PARTÍCULAS & MORTE
 // ══════════════════════════════════════════════
-function spawnParticles(x, y, color, count = 40) {
-  for (let i = 0; i < count; i++) {
-    const angle = rand(0, Math.PI * 2)
-    const spd   = rand(1.5, 8)
+function spawnParticles(x, y, color, n = 45) {
+  for (let i = 0; i < n; i++) {
+    const a = rand(0, Math.PI * 2), s = rand(1.5, 9)
     particles.push({
-      x, y,
-      vx: Math.cos(angle) * spd,
-      vy: Math.sin(angle) * spd,
-      r:  rand(2, 6),
-      color,
-      alpha: 1,
-      decay: rand(0.012, 0.028),
+      x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s,
+      r: rand(2, 6), color, alpha: 1, decay: rand(0.012, 0.03),
     })
   }
 }
@@ -352,62 +377,50 @@ function spawnParticles(x, y, color, count = 40) {
 function killSnake(snake) {
   if (snake.dead) return
   snake.dead = true
-
-  const hx = snake.body[0].x
-  const hy = snake.body[0].y
-  spawnParticles(hx, hy, snake.color, 50)
-
-  // dropa comida premium ao longo do corpo
+  spawnParticles(snake.body[0].x, snake.body[0].y, snake.color, 50)
   for (let i = 1; i < snake.body.length; i += 2) {
-    if (Math.random() < 0.65) {
+    if (Math.random() < 0.65)
       food.push(makeFood(
         snake.body[i].x + rand(-12, 12),
         snake.body[i].y + rand(-12, 12),
         true,
       ))
-    }
   }
-
   if (snake === player) {
-    triggerGameOver()
+    sfxDie()
+    stopAmbient()
+    gameRunning = false
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null }
+    document.getElementById('final-score').textContent = Math.floor(player.score)
+    document.getElementById('screen-gameover').classList.add('show')
+  } else {
+    sfxKill()
   }
-}
-
-function triggerGameOver() {
-  gameRunning = false
-  if (rafId) { cancelAnimationFrame(rafId); rafId = null }
-  document.getElementById('final-score').textContent = Math.floor(player.score)
-  document.getElementById('screen-gameover').classList.add('show')
 }
 
 // ══════════════════════════════════════════════
-//  REINICIAR
+//  INICIAR / REINICIAR
 // ══════════════════════════════════════════════
 function startGame() {
-  document.getElementById('screen-start').style.display    = 'none'
+  // desbloqueia AudioContext (precisa de gesto do usuário)
+  try { getAudio().resume() } catch (_) {}
+
+  document.getElementById('screen-start').style.display = 'none'
   document.getElementById('screen-gameover').classList.remove('show')
 
-  food      = []
-  snakes    = []
-  particles = []
+  food = []; snakes = []; particles = []
   gameRunning = true
-
   refillFood()
 
   player = makeSnake({ bot: false, x: WORLD.w / 2, y: WORLD.h / 2, color: '#00ff88' })
   snakes.push(player)
-
   for (let i = 0; i < BOT_COUNT; i++) {
-    const pos = randEdgeSafe(300)
-    snakes.push(makeSnake({
-      bot: true,
-      x: pos.x, y: pos.y,
-      color: BOT_COLORS[i % BOT_COLORS.length],
-    }))
+    const p = randPos(300)
+    snakes.push(makeSnake({ bot: true, x: p.x, y: p.y, color: BOT_COLORS[i % BOT_COLORS.length] }))
   }
 
   updateHUD()
-
+  startAmbient()
   if (rafId) cancelAnimationFrame(rafId)
   rafId = requestAnimationFrame(loop)
 }
@@ -421,59 +434,33 @@ let jActive   = false
 
 function jMove(cx, cy) {
   if (!jActive || !gameRunning) return
-  const r = jZone.getBoundingClientRect()
-  const rx = r.left + r.width  / 2
-  const ry = r.top  + r.height / 2
-  let dx = cx - rx
-  let dy = cy - ry
-  const d = Math.hypot(dx, dy)
-  const max = r.width / 2 - 4
+  const r   = jZone.getBoundingClientRect()
+  const rx  = r.left + r.width  / 2
+  const ry  = r.top  + r.height / 2
+  let dx = cx - rx, dy = cy - ry
+  const d = Math.hypot(dx, dy), max = r.width / 2 - 4
   if (d > max) { dx = dx / d * max; dy = dy / d * max }
   jHandle.style.transform = `translate(${dx}px,${dy}px)`
-  if (d > 6) {
-    const len = Math.hypot(dx, dy)
-    player.dir = { x: dx / len, y: dy / len }
-  }
+  if (d > 6) { const l = Math.hypot(dx, dy); player.dir = { x: dx/l, y: dy/l } }
 }
-
 function jReset() {
   jActive = false
   jHandle.style.transform = 'translate(0,0)'
   jZone.classList.remove('active')
 }
+jZone.addEventListener('touchstart',  e => { jActive = true; jZone.classList.add('active'); jMove(e.touches[0].clientX, e.touches[0].clientY) }, { passive: true })
+window.addEventListener('touchmove',  e => { if (jActive) jMove(e.touches[0].clientX, e.touches[0].clientY) }, { passive: true })
+window.addEventListener('touchend',   jReset)
+window.addEventListener('touchcancel',jReset)
+jZone.addEventListener('mousedown',   e => { jActive = true; jZone.classList.add('active'); jMove(e.clientX, e.clientY) })
+window.addEventListener('mousemove',  e => { if (jActive) jMove(e.clientX, e.clientY) })
+window.addEventListener('mouseup',    jReset)
 
-jZone.addEventListener('touchstart', e => {
-  jActive = true
-  jZone.classList.add('active')
-  jMove(e.touches[0].clientX, e.touches[0].clientY)
-}, { passive: true })
-window.addEventListener('touchmove', e => {
-  if (jActive) jMove(e.touches[0].clientX, e.touches[0].clientY)
-}, { passive: true })
-window.addEventListener('touchend', jReset)
-window.addEventListener('touchcancel', jReset)
-
-jZone.addEventListener('mousedown', e => { jActive = true; jZone.classList.add('active'); jMove(e.clientX, e.clientY) })
-window.addEventListener('mousemove', e => { if (jActive) jMove(e.clientX, e.clientY) })
-window.addEventListener('mouseup', jReset)
-
-// ── Teclado (PC) ──
-const KEYS = {}
 window.addEventListener('keydown', e => {
-  KEYS[e.key] = true
   if (!gameRunning) return
-  const map = {
-    ArrowUp:'up', w:'up', W:'up',
-    ArrowDown:'down', s:'down', S:'down',
-    ArrowLeft:'left', a:'left', A:'left',
-    ArrowRight:'right', d:'right', D:'right',
-  }
-  const act = map[e.key]
-  if (!act) return
-  const dirs = { up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0} }
-  player.dir = dirs[act]
+  const m = { ArrowUp:{x:0,y:-1},w:{x:0,y:-1},W:{x:0,y:-1}, ArrowDown:{x:0,y:1},s:{x:0,y:1},S:{x:0,y:1}, ArrowLeft:{x:-1,y:0},a:{x:-1,y:0},A:{x:-1,y:0}, ArrowRight:{x:1,y:0},d:{x:1,y:0},D:{x:1,y:0} }
+  if (m[e.key]) player.dir = m[e.key]
 })
-window.addEventListener('keyup', e => { delete KEYS[e.key] })
 
 // ══════════════════════════════════════════════
 //  IA DOS BOTS
@@ -481,10 +468,10 @@ window.addEventListener('keyup', e => { delete KEYS[e.key] })
 function botAI(bot) {
   const head = bot.body[0]
 
-  // alvo: comida mais próxima com peso para premium
+  // alvo: comida mais próxima (premium tem peso maior)
   let bestFood = null, bestDist = Infinity
   for (const f of food) {
-    const w = dist(head.x, head.y, f.x, f.y) * (f.value > 1 ? 0.35 : 1)
+    const w = hypot(head.x, head.y, f.x, f.y) * (f.value > 1 ? 0.35 : 1)
     if (w < bestDist) { bestDist = w; bestFood = f }
   }
 
@@ -496,31 +483,26 @@ function botAI(bot) {
     tx = dx / d; ty = dy / d
   }
 
-  // detecção de perigo à frente
-  const look = 55
+  // lookahead de perigo
+  const look = 60
   const fx = head.x + bot.dir.x * look
   const fy = head.y + bot.dir.y * look
-  let danger = false
+  let danger = fx < 100 || fx > WORLD.w - 100 || fy < 100 || fy > WORLD.h - 100
 
-  // borda
-  if (fx < 80 || fx > WORLD.w - 80 || fy < 80 || fy > WORLD.h - 80) danger = true
-
-  // corpos alheios
   if (!danger) {
+    outer:
     for (const s of snakes) {
       if (s.dead) continue
-      const start = s === bot ? SELF_COL_SKIP : 0
-      for (let i = start; i < s.body.length; i++) {
-        if (dist(fx, fy, s.body[i].x, s.body[i].y) < COL_DIST * 2.5) {
-          danger = true; break
+      const skip = s === bot ? SELF_SKIP : 0
+      for (let i = skip; i < s.body.length; i++) {
+        if (hypot(fx, fy, s.body[i].x, s.body[i].y) < COL_HEAD_BODY * 2.2) {
+          danger = true; break outer
         }
       }
-      if (danger) break
     }
   }
 
   if (danger) {
-    // vira 90° aleatório
     const angle = Math.random() < 0.5 ? Math.PI / 2 : -Math.PI / 2
     const bx = bot.dir.x, by = bot.dir.y
     bot.dir = {
@@ -528,7 +510,6 @@ function botAI(bot) {
       y: bx * Math.sin(angle) + by * Math.cos(angle),
     }
   } else {
-    // interpola suavemente em direção ao alvo
     bot.dir.x += (tx - bot.dir.x) * 0.1
     bot.dir.y += (ty - bot.dir.y) * 0.1
     const l = Math.hypot(bot.dir.x, bot.dir.y) || 1
@@ -537,25 +518,20 @@ function botAI(bot) {
 }
 
 // ══════════════════════════════════════════════
-//  MOVIMENTO
+//  MOVIMENTO + CORPO
 // ══════════════════════════════════════════════
 function moveSnake(snake) {
   const head = snake.body[0]
   head.x += snake.dir.x * snake.speed
   head.y += snake.dir.y * snake.speed
 
-  // borda → morte
-  if (head.x < 0 || head.x > WORLD.w || head.y < 0 || head.y > WORLD.h) {
-    return true // morreu
-  }
+  if (head.x < 0 || head.x > WORLD.w || head.y < 0 || head.y > WORLD.h) return true
 
-  // LERP do corpo
+  // LERP: cada segmento segue o anterior mantendo SEG_GAP
   for (let i = 1; i < snake.body.length; i++) {
-    const prev = snake.body[i - 1]
-    const curr = snake.body[i]
-    const dx   = prev.x - curr.x
-    const dy   = prev.y - curr.y
-    const d    = Math.hypot(dx, dy)
+    const prev = snake.body[i - 1], curr = snake.body[i]
+    const dx = prev.x - curr.x, dy = prev.y - curr.y
+    const d  = Math.hypot(dx, dy)
     if (d > SEG_GAP) {
       const r = SEG_GAP / d
       curr.x = prev.x - dx * r
@@ -569,7 +545,6 @@ function moveSnake(snake) {
     const last = snake.body[snake.body.length - 1]
     snake.body.push({ x: last.x, y: last.y })
   }
-
   return false
 }
 
@@ -580,8 +555,9 @@ function eatFood(snake) {
   const head = snake.body[0]
   for (let i = food.length - 1; i >= 0; i--) {
     const f = food[i]
-    if (dist(head.x, head.y, f.x, f.y) < HEAD_R + f.size + 3) {
+    if (hypot(head.x, head.y, f.x, f.y) < HEAD_R + f.size + 3) {
       snake.score += f.value
+      if (snake === player) f.value > 1 ? sfxEatPremium() : sfxEat()
       food.splice(i, 1)
     }
   }
@@ -589,19 +565,45 @@ function eatFood(snake) {
 }
 
 // ══════════════════════════════════════════════
-//  COLISÃO COBRA→COBRA  (sem auto-colisão nos SELF_COL_SKIP primeiros)
+//  COLISÃO COBRA → CORPO
+//
+//  REGRA DE AUTO-COLISÃO:
+//  Ignoramos os segmentos do próprio corpo cuja distância acumulada
+//  a partir da cabeça seja menor que (HEAD_R + BODY_R + margem).
+//  Isso garante que, independente da velocidade ou do SEG_GAP,
+//  a cabeça nunca vai colidir com segmentos que fisicamente
+//  ainda estão dentro do raio de "segurança" do próprio corpo.
 // ══════════════════════════════════════════════
-function checkSnakeCollisions() {
+const SELF_SAFE_DIST = HEAD_R + BODY_R + 4   // distância mínima de segurança
+
+function checkCollisions() {
   for (const s of snakes) {
     if (s.dead) continue
-    const head = s.body[0]
+    const hx = s.body[0].x, hy = s.body[0].y
+
     for (const o of snakes) {
       if (o.dead) continue
-      const startIdx = o === s ? SELF_COL_SKIP : 0
-      for (let i = startIdx; i < o.body.length; i++) {
-        if (dist(head.x, head.y, o.body[i].x, o.body[i].y) < COL_DIST) {
-          killSnake(s)
-          break
+      const isSelf = o === s
+
+      if (isSelf) {
+        // AUTO-COLISÃO: percorre o corpo acumulando distância física
+        // e só começa a verificar depois de ultrapassar a zona de segurança
+        let accumulated = 0
+        for (let i = 1; i < o.body.length; i++) {
+          const prev = o.body[i - 1]
+          const curr = o.body[i]
+          accumulated += Math.hypot(curr.x - prev.x, curr.y - prev.y)
+          if (accumulated < SELF_SAFE_DIST) continue   // ainda dentro da zona segura
+          if (hypot(hx, hy, curr.x, curr.y) < COL_HEAD_BODY) {
+            killSnake(s); break
+          }
+        }
+      } else {
+        // colisão com outra cobra: verifica todos os segmentos
+        for (let i = 0; i < o.body.length; i++) {
+          if (hypot(hx, hy, o.body[i].x, o.body[i].y) < COL_HEAD_BODY) {
+            killSnake(s); break
+          }
         }
       }
       if (s.dead) break
@@ -610,12 +612,12 @@ function checkSnakeCollisions() {
 }
 
 // ══════════════════════════════════════════════
-//  PARTÍCULAS
+//  PARTÍCULAS — UPDATE
 // ══════════════════════════════════════════════
 function updateParticles() {
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i]
-    p.x  += p.vx; p.y += p.vy
+    p.x += p.vx; p.y += p.vy
     p.vx *= 0.93; p.vy *= 0.93
     p.alpha -= p.decay
     if (p.alpha <= 0) particles.splice(i, 1)
@@ -623,165 +625,133 @@ function updateParticles() {
 }
 
 // ══════════════════════════════════════════════
-//  DRAW
+//  DESENHO
 // ══════════════════════════════════════════════
-const BORDER_W = 40   // espessura da borda de perigo
+const BORDER_W = 40
 
 function draw() {
-  const W = canvas.width
-  const H = canvas.height
+  const W = canvas.width, H = canvas.height
   const t = Date.now() * 0.001
 
-  // câmera centrada no jogador
-  const hx  = player.body[0].x
-  const hy  = player.body[0].y
-  const camX = hx - W / 2
-  const camY = hy - H / 2
+  const hx   = player.body[0].x, hy = player.body[0].y
+  const camX = hx - W / 2, camY = hy - H / 2
 
-  // ── fundo ──
+  // fundo
   ctx.fillStyle = '#050508'
   ctx.fillRect(0, 0, W, H)
 
-  // ── grade cyberpunk ──
+  // grade
   ctx.save()
   ctx.strokeStyle = 'rgba(0,212,255,0.045)'
   ctx.lineWidth = 1
-  const gridSize = 80
-  const gsx = (((-camX) % gridSize) + gridSize) % gridSize
-  const gsy = (((-camY) % gridSize) + gridSize) % gridSize
-  for (let x = gsx; x < W; x += gridSize) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke()
-  }
-  for (let y = gsy; y < H; y += gridSize) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke()
-  }
+  const gs = 80
+  const ox = (((-camX) % gs) + gs) % gs
+  const oy = (((-camY) % gs) + gs) % gs
+  for (let x = ox; x < W; x += gs) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke() }
+  for (let y = oy; y < H; y += gs) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke() }
   ctx.restore()
 
-  // ── borda de perigo (overlay vermelho nas bordas do mundo) ──
-  const edges = [
-    { wx: 0,       wy: 0,       ww: WORLD.w, wh: BORDER_W },  // top
-    { wx: 0,       wy: WORLD.h - BORDER_W, ww: WORLD.w, wh: BORDER_W }, // bottom
-    { wx: 0,       wy: 0,       ww: BORDER_W, wh: WORLD.h }, // left
-    { wx: WORLD.w - BORDER_W, wy: 0, ww: BORDER_W, wh: WORLD.h }, // right
-  ]
+  // borda de perigo
   ctx.save()
-  const pulse = 0.3 + 0.2 * Math.sin(t * 3)
+  const pulse = 0.28 + 0.18 * Math.sin(t * 3)
   ctx.fillStyle = `rgba(255,59,48,${pulse})`
-  for (const e of edges) {
-    const sx = e.wx - camX, sy = e.wy - camY
-    ctx.fillRect(sx, sy, e.ww, e.wh)
-  }
-  // linha de borda neon
-  ctx.strokeStyle = `rgba(255,59,48,${0.6 + 0.3 * Math.sin(t * 4)})`
+  const borders = [
+    [0,           0,           WORLD.w, BORDER_W],
+    [0,           WORLD.h-BORDER_W, WORLD.w, BORDER_W],
+    [0,           0,           BORDER_W, WORLD.h],
+    [WORLD.w-BORDER_W, 0,      BORDER_W, WORLD.h],
+  ]
+  for (const [bx,by,bw,bh] of borders)
+    ctx.fillRect(bx - camX, by - camY, bw, bh)
+  ctx.strokeStyle = `rgba(255,59,48,${0.55 + 0.35 * Math.sin(t * 4)})`
   ctx.lineWidth = 3
-  ctx.shadowBlur = 12
-  ctx.shadowColor = '#ff3b30'
+  ctx.shadowBlur = 14; ctx.shadowColor = '#ff3b30'
   ctx.strokeRect(-camX + 1, -camY + 1, WORLD.w - 2, WORLD.h - 2)
   ctx.restore()
 
-  // ── comida ──
+  // comida
   ctx.save()
   for (const f of food) {
-    const sx = f.x - camX
-    const sy = f.y - camY
-    if (sx < -20 || sx > W + 20 || sy < -20 || sy > H + 20) continue
-    const pulse = f.size + Math.sin(t * 2.5 + f.phase) * 1.5
-    const color = `hsl(${f.hue},100%,62%)`
-    ctx.beginPath()
-    ctx.arc(sx, sy, Math.max(2, pulse), 0, Math.PI * 2)
-    ctx.fillStyle = color
-    ctx.shadowBlur  = f.value > 1 ? 22 : 12
-    ctx.shadowColor = color
+    const sx = f.x - camX, sy = f.y - camY
+    if (sx < -20 || sx > W+20 || sy < -20 || sy > H+20) continue
+    const r = f.size + Math.sin(t * 2.5 + f.phase) * 1.5
+    const c = `hsl(${f.hue},100%,62%)`
+    ctx.beginPath(); ctx.arc(sx, sy, Math.max(2, r), 0, Math.PI*2)
+    ctx.fillStyle = c
+    ctx.shadowBlur = f.value > 1 ? 22 : 12
+    ctx.shadowColor = c
     ctx.fill()
   }
   ctx.restore()
 
-  // ── cobras ──
+  // cobras
   ctx.save()
   for (const snake of snakes) {
     if (snake.dead) continue
-    const isPlayer = snake === player
-
     for (let i = snake.body.length - 1; i >= 0; i--) {
       const seg = snake.body[i]
-      const sx  = seg.x - camX
-      const sy  = seg.y - camY
-      if (sx < -20 || sx > W + 20 || sy < -20 || sy > H + 20) continue
+      const sx = seg.x - camX, sy = seg.y - camY
+      if (sx < -25 || sx > W+25 || sy < -25 || sy > H+25) continue
 
-      const isHead = i === 0
-      const taper  = isHead ? 1 : Math.max(0.42, 1 - i * 0.006)
-      const r      = (isHead ? HEAD_R : BODY_R) * taper
+      const isHead  = i === 0
+      const taper   = isHead ? 1 : Math.max(0.42, 1 - i * 0.006)
+      const r       = (isHead ? HEAD_R : BODY_R) * taper
+      const fade    = isHead ? 1 : Math.max(0.55, 1 - i * 0.003)
 
-      if (isHead) {
-        // brilho extra na cabeça
-        ctx.shadowBlur  = 28
-        ctx.shadowColor = snake.color
-        ctx.fillStyle   = '#ffffff'
-      } else {
-        // gradiente de cor ao longo do corpo
-        const fade = Math.max(0.55, 1 - i * 0.003)
-        ctx.shadowBlur  = 10
-        ctx.shadowColor = snake.color
-        // interpola para mais escuro na cauda
-        ctx.fillStyle = snake.color
-        ctx.globalAlpha = fade
-      }
+      ctx.globalAlpha = fade
+      ctx.shadowBlur  = isHead ? 28 : 10
+      ctx.shadowColor = snake.color
+      ctx.fillStyle   = isHead ? '#ffffff' : snake.color
 
       ctx.beginPath()
-      ctx.arc(sx, sy, r, 0, Math.PI * 2)
+      ctx.arc(sx, sy, r, 0, Math.PI*2)
       ctx.fill()
       ctx.globalAlpha = 1
 
-      // olhos na cabeça
       if (isHead) {
+        // olhos
         ctx.shadowBlur = 0
-        ctx.fillStyle  = '#050508'
-        const ex = snake.dir.y * 4
-        const ey = snake.dir.x * 4
+        const ex = snake.dir.y * 4, ey = snake.dir.x * 4
+        const ox1 = sx + snake.dir.x*6 + ex, oy1 = sy + snake.dir.y*6 - ey
+        const ox2 = sx + snake.dir.x*6 - ex, oy2 = sy + snake.dir.y*6 + ey
+        ctx.fillStyle = '#050508'
         ctx.beginPath()
-        ctx.arc(sx + snake.dir.x * 6 + ex, sy + snake.dir.y * 6 - ey, 2.8, 0, Math.PI * 2)
-        ctx.arc(sx + snake.dir.x * 6 - ex, sy + snake.dir.y * 6 + ey, 2.8, 0, Math.PI * 2)
+        ctx.arc(ox1, oy1, 2.8, 0, Math.PI*2)
+        ctx.arc(ox2, oy2, 2.8, 0, Math.PI*2)
         ctx.fill()
-        // brilho dos olhos
         ctx.fillStyle = '#fff'
         ctx.beginPath()
-        ctx.arc(sx + snake.dir.x * 6 + ex + 0.8, sy + snake.dir.y * 6 - ey - 0.8, 0.9, 0, Math.PI * 2)
-        ctx.arc(sx + snake.dir.x * 6 - ex + 0.8, sy + snake.dir.y * 6 + ey - 0.8, 0.9, 0, Math.PI * 2)
+        ctx.arc(ox1+0.8, oy1-0.8, 1, 0, Math.PI*2)
+        ctx.arc(ox2+0.8, oy2-0.8, 1, 0, Math.PI*2)
         ctx.fill()
       }
     }
 
-    // nome/label acima da cabeça do player
-    if (isPlayer) {
-      const hsx = player.body[0].x - camX
-      const hsy = player.body[0].y - camY
-      ctx.shadowBlur = 0
-      ctx.globalAlpha = 0.85
-      ctx.fillStyle = '#00ff88'
-      ctx.font = 'bold 11px Segoe UI'
+    // label do player
+    if (snake === player) {
+      const sx = player.body[0].x - camX, sy = player.body[0].y - camY
+      ctx.shadowBlur = 0; ctx.globalAlpha = 0.85
+      ctx.fillStyle = '#00ff88'; ctx.font = 'bold 11px Segoe UI'
       ctx.textAlign = 'center'
-      ctx.fillText('VOCÊ', hsx, hsy - HEAD_R - 7)
-      ctx.textAlign = 'left'
-      ctx.globalAlpha = 1
+      ctx.fillText('VOCÊ', sx, sy - HEAD_R - 7)
+      ctx.textAlign = 'left'; ctx.globalAlpha = 1
     }
   }
   ctx.restore()
 
-  // ── partículas ──
+  // partículas
   ctx.save()
   for (const p of particles) {
-    ctx.globalAlpha  = p.alpha
-    ctx.fillStyle    = p.color
-    ctx.shadowBlur   = 14
-    ctx.shadowColor  = p.color
-    ctx.beginPath()
-    ctx.arc(p.x - camX, p.y - camY, p.r, 0, Math.PI * 2)
-    ctx.fill()
+    const sx = p.x - camX, sy = p.y - camY
+    ctx.globalAlpha = p.alpha
+    ctx.fillStyle   = p.color
+    ctx.shadowBlur  = 14; ctx.shadowColor = p.color
+    ctx.beginPath(); ctx.arc(sx, sy, p.r, 0, Math.PI*2); ctx.fill()
   }
   ctx.globalAlpha = 1
   ctx.restore()
 
-  // ── minimap ──
+  // minimap
   drawMinimap(camX, camY, W, H)
 }
 
@@ -789,39 +759,25 @@ function drawMinimap(camX, camY, W, H) {
   const MM = 110, PAD = 14
   const mx = W - MM - PAD, my = H - MM - PAD
   const sx = MM / WORLD.w, sy = MM / WORLD.h
-
   ctx.save()
   ctx.globalAlpha = 0.72
   ctx.fillStyle   = 'rgba(0,0,0,0.6)'
   ctx.strokeStyle = 'rgba(0,212,255,0.3)'
   ctx.lineWidth   = 1
   ctx.beginPath()
-  ctx.roundRect(mx - 2, my - 2, MM + 4, MM + 4, 6)
-  ctx.fill()
-  ctx.stroke()
-
-  // comida no minimap
-  ctx.fillStyle = 'rgba(0,255,136,0.5)'
-  for (const f of food) {
-    ctx.fillRect(mx + f.x * sx - 0.5, my + f.y * sy - 0.5, 1, 1)
-  }
-
-  // cobras no minimap
+  ctx.roundRect(mx-2, my-2, MM+4, MM+4, 6)
+  ctx.fill(); ctx.stroke()
+  ctx.fillStyle = 'rgba(0,255,136,0.45)'
+  for (const f of food) ctx.fillRect(mx + f.x*sx - 0.5, my + f.y*sy - 0.5, 1, 1)
   for (const s of snakes) {
     if (s.dead || !s.body.length) continue
     ctx.fillStyle = s === player ? '#ffffff' : s.color
-    const hx = s.body[0].x, hy = s.body[0].y
     ctx.beginPath()
-    ctx.arc(mx + hx * sx, my + hy * sy, s === player ? 3 : 2, 0, Math.PI * 2)
+    ctx.arc(mx + s.body[0].x*sx, my + s.body[0].y*sy, s===player?3:2, 0, Math.PI*2)
     ctx.fill()
   }
-
-  // câmera viewport
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)'
-  ctx.strokeRect(
-    mx + camX * sx, my + camY * sy,
-    canvas.width * sx, canvas.height * sy,
-  )
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)'
+  ctx.strokeRect(mx + camX*sx, my + camY*sy, canvas.width*sx, canvas.height*sy)
   ctx.restore()
 }
 
@@ -829,10 +785,8 @@ function drawMinimap(camX, camY, W, H) {
 //  HUD
 // ══════════════════════════════════════════════
 function updateHUD() {
-  const score = Math.floor(player.score)
-  const bots  = snakes.filter(s => s.bot && !s.dead).length
-  document.getElementById('hud-score').textContent = `🟢 ${score} pts`
-  document.getElementById('hud-bots').textContent  = `🤖 ${bots} bots`
+  document.getElementById('hud-score').textContent = `🟢 ${Math.floor(player.score)} pts`
+  document.getElementById('hud-bots').textContent  = `🤖 ${snakes.filter(s=>s.bot&&!s.dead).length} bots`
 }
 
 // ══════════════════════════════════════════════
@@ -841,63 +795,42 @@ function updateHUD() {
 function loop() {
   if (!gameRunning) return
 
-  // mover bots
-  for (const s of snakes) {
-    if (s.bot && !s.dead) botAI(s)
-  }
+  for (const s of snakes) { if (s.bot && !s.dead) botAI(s) }
 
-  // mover todas as cobras
   for (const s of snakes) {
     if (s.dead) continue
-    const hitWall = moveSnake(s)
-    if (hitWall) killSnake(s)
+    if (moveSnake(s)) killSnake(s)
   }
+  if (!gameRunning) return
 
-  if (!gameRunning) return  // player morreu na borda
+  for (const s of snakes) { if (!s.dead) eatFood(s) }
 
-  // comer comida
-  for (const s of snakes) {
-    if (!s.dead) eatFood(s)
-  }
-
-  // colisões cobra→cobra
-  checkSnakeCollisions()
-
-  if (!gameRunning) return  // player morreu em colisão
+  checkCollisions()
+  if (!gameRunning) return
 
   // respawn de bots mortos
   for (let i = 0; i < snakes.length; i++) {
     if (snakes[i].bot && snakes[i].dead) {
-      const pos = randEdgeSafe(300)
-      snakes[i] = makeSnake({
-        bot: true,
-        x: pos.x, y: pos.y,
-        color: BOT_COLORS[(i - 1) % BOT_COLORS.length],
-      })
+      const p = randPos(300)
+      snakes[i] = makeSnake({ bot:true, x:p.x, y:p.y, color: BOT_COLORS[(i-1+BOT_COLORS.length)%BOT_COLORS.length] })
     }
   }
 
   updateParticles()
   draw()
   updateHUD()
-
   rafId = requestAnimationFrame(loop)
 }
 
 // ══════════════════════════════════════════════
-//  BOTÕES UI
+//  BOTÕES
 // ══════════════════════════════════════════════
 document.getElementById('btn-play').addEventListener('click', startGame)
-document.getElementById('btn-play').addEventListener('touchstart', e => {
-  e.preventDefault(); startGame()
-}, { passive: false })
-
+document.getElementById('btn-play').addEventListener('touchstart', e => { e.preventDefault(); startGame() }, { passive: false })
 document.getElementById('btn-restart').addEventListener('click', startGame)
-document.getElementById('btn-restart').addEventListener('touchstart', e => {
-  e.preventDefault(); startGame()
-}, { passive: false })
+document.getElementById('btn-restart').addEventListener('touchstart', e => { e.preventDefault(); startGame() }, { passive: false })
 
-// primeiro frame de fundo (sem game ativo)
+// frame inicial
 ctx.fillStyle = '#050508'
 ctx.fillRect(0, 0, canvas.width, canvas.height)
 </script>
