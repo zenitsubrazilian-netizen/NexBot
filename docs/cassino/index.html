@@ -11,7 +11,7 @@
       background: #0d0d13;
       color: #fff;
       min-height: 100vh;
-      display: flex;
+      display: flex; 
       flex-direction: column;
       align-items: center;
       padding: 20px 16px;
@@ -209,7 +209,6 @@
     let token = null
     let balance = 0
 
-    // Tenta restaurar sessão salva
     window.onload = () => {
       const saved = localStorage.getItem('nexcassino_token')
       const savedBalance = localStorage.getItem('nexcassino_balance')
@@ -321,86 +320,68 @@
       document.getElementById('resultDisplay').className = 'result-msg'
       document.getElementById('resultDisplay').textContent = '🎰 Girando...'
 
-      // Animação dos rolos
+      let serverPromise = fetch(API + '/cassino/spin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, bet })
+      }).then(async res => {
+        if (res.status === 401) { doLogout(); throw new Error('Sessão expirada') }
+        const data = await res.json()
+        if (!res.ok) {
+          throw new Error(data.error || 'Erro na aposta.')
+        }
+        return data
+      })
+
       let count = 0
       const interval = setInterval(() => {
         document.getElementById('r1').textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)]
         document.getElementById('r2').textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)]
         document.getElementById('r3').textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)]
         count++
-        if (count > 12) {
-          clearInterval(interval)
-          finishSpin(bet)
-        }
       }, 80)
-    }
 
-    async function finishSpin(bet) {
-      const r1 = EMOJIS[Math.floor(Math.random() * EMOJIS.length)]
-      const r2 = EMOJIS[Math.floor(Math.random() * EMOJIS.length)]
-      const r3 = EMOJIS[Math.floor(Math.random() * EMOJIS.length)]
-      document.getElementById('r1').textContent = r1
-      document.getElementById('r2').textContent = r2
-      document.getElementById('r3').textContent = r3
-
-      const result = document.getElementById('resultDisplay')
-      const btn = document.getElementById('spinBtn')
-
-      let won = false
-      let wonAmount = 0
-      let resultText = ''
-
-      if (r1 === r2 && r2 === r3) {
-        let mult = 10
-        if (r1 === '👑') mult = 100
-        else if (r1 === '💎') mult = 50
-        else if (r1 === '🔔') mult = 20
-        wonAmount = bet * mult
-        won = true
-        result.className = 'result-msg win'
-        resultText = '🏆 GANHOU! +' + wonAmount.toLocaleString('pt-BR') + ' moedas (' + mult + 'x)!'
-      } else if (r1 === r2 || r1 === r3 || r2 === r3) {
-        wonAmount = bet * 2
-        won = true
-        result.className = 'result-msg win'
-        resultText = '🎰 DUPLA! +' + wonAmount.toLocaleString('pt-BR') + ' moedas (2x)!'
-      } else {
-        result.className = 'result-msg lose'
-        resultText = '😔 Não foi dessa vez!'
-      }
-
-      // Envia para o servidor
       try {
-        const res = await fetch(API + '/cassino/spin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, bet, won, amount: wonAmount })
-        })
-        if (res.status === 401) { doLogout(); return }
-        if (res.status === 400) {
-          const data = await res.json()
+        const [serverData] = await Promise.all([
+          serverPromise,
+          new Promise(resolve => setTimeout(resolve, 1200))
+        ])
+
+        clearInterval(interval)
+
+        document.getElementById('r1').textContent = serverData.r1
+        document.getElementById('r2').textContent = serverData.r2
+        document.getElementById('r3').textContent = serverData.r3
+
+        const result = document.getElementById('resultDisplay')
+        if (serverData.won) {
+          result.className = 'result-msg win'
+          const mult = serverData.amount / bet
+          if (mult >= 10) {
+            result.textContent = '🏆 GANHOU! +' + serverData.amount.toLocaleString('pt-BR') + ' moedas (' + mult + 'x)!'
+          } else {
+            result.textContent = '🎰 DUPLA! +' + serverData.amount.toLocaleString('pt-BR') + ' moedas (2x)!'
+          }
+        } else {
           result.className = 'result-msg lose'
-          resultText = '❌ ' + (data.error || 'Erro na aposta.')
-          result.textContent = resultText
-          btn.disabled = false
-          return
+          result.textContent = '😔 Não foi dessa vez!'
         }
-        const data = await res.json()
-        balance = data.balance
+
+        balance = serverData.balance
         localStorage.setItem('nexcassino_balance', balance)
         updateDisplay()
-      } catch (e) {
+
+        if (balance <= 0) {
+          setTimeout(() => alert('Você ficou sem moedas! Use /daily no WhatsApp para ganhar mais.'), 300)
+        }
+      } catch (err) {
+        clearInterval(interval)
+        const result = document.getElementById('resultDisplay')
         result.className = 'result-msg lose'
-        resultText = '⚠️ Erro de conexão com o servidor.'
+        result.textContent = '❌ ' + err.message
+      } finally {
+        btn.disabled = false
       }
-
-      result.textContent = resultText
-
-      if (balance <= 0) {
-        setTimeout(() => alert('Você ficou sem moedas! Use /daily no WhatsApp para ganhar mais.'), 300)
-      }
-
-      btn.disabled = false
     }
   </script>
 </body>
