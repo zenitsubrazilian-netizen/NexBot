@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NexBot — Cassino</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0d0d13;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px;
+    }
+    .back {
+      align-self: flex-start;
+      color: #e5a93b;
+      text-decoration: none;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .balance-box {
+      background: #181824;
+      border: 1px solid #e5a93b;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ffd700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .slots-container {
+      background: #181824;
+      border: 3px solid #2d2d3f;
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .reels {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      width: 100%;
+    }
+    .reel {
+      width: 80px;
+      height: 90px;
+      background: #252538;
+      border: 2px solid #e5a93b;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      transition: transform 0.1s ease;
+    }
+    .bet-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
+    .bet-input {
+      flex: 1;
+      background: #252538;
+      border: 1px solid #444;
+      color: #fff;
+      font-size: 1.1rem;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 700;
+    }
+    .btn-spin {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #000;
+      font-size: 1.2rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .btn-spin:active {
+      transform: scale(0.98);
+    }
+    .result-msg {
+      min-height: 24px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    .win { color: #00ff66; }
+    .lose { color: #ff3344; }
+    .rules-card {
+      margin-top: 30px;
+      background: #181824;
+      padding: 16px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 380px;
+      font-size: 0.85rem;
+      color: #aaa;
+      line-height: 1.5;
+    }
+    .rules-card h3 {
+      color: #ffd700;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <a class="back" href="../">← Voltar</a>
+  <h1>🎰 Cassino Relâmpago</h1>
+  <p class="subtitle">Aposte suas moedas de treino e veja sua sorte!</p>
+  <div class="balance-box">
+    <span>🪙 Saldo:</span>
+    <span id="balanceDisplay">1.000</span>
+  </div>
+  <div class="slots-container">
+    <div class="reels">
+      <div class="reel" id="r1">💎</div>
+      <div class="reel" id="r2">💎</div>
+      <div class="reel" id="r3">💎</div>
+    </div>
+    <div class="result-msg" id="resultDisplay"></div>
+    <div class="bet-row">
+      <button style="padding:12px; background:#252538; border:1px solid #444; color:#fff; border-radius:8px; font-weight:700;" onclick="changeBet(-100)">-100</button>
+      <input type="number" class="bet-input" id="betInput" value="100" min="10" max="10000">
+      <button style="padding:12px; background:#252538; border:1px solid #444; color:#fff; border-radius:8px; font-weight:700;" onclick="changeBet(100)">+100</button>
+    </div>
+    <button class="btn-spin" id="spinBtn" onclick="spin()">Girar ⚡</button>
+  </div>
+  <div class="rules-card">
+    <h3>📊 Tabela de Pagamentos:</h3>
+    <p>👑 👑 👑 -> <b>100x sua aposta</b> (Jackpot!)</p>
+    <p>💎 💎 💎 -> <b>50x sua aposta</b></p>
+    <p>🔔 🔔 🔔 -> <b>20x sua aposta</b></p>
+    <p>Qualquer trio igual -> <b>10x sua aposta</b></p>
+    <p>Qualquer dupla igual -> <b>2x sua aposta</b></p>
+  </div>
+  <script>
+    const EMOJIS = ['🍒', '🍋', '🍇', '🔔', '💎', '👑'];
+    let balance = parseInt(localStorage.getItem('casino_balance') || '1000', 10);
+    function updateDisplay() {
+      document.getElementById('balanceDisplay').textContent = balance.toLocaleString('pt-BR');
+      localStorage.setItem('casino_balance', balance);
+    }
+    function changeBet(amount) {
+      let bet = parseInt(document.getElementById('betInput').value, 10) || 100;
+      bet = Math.max(10, bet + amount);
+      document.getElementById('betInput').value = bet;
+    }
+    function spin() {
+      let bet = parseInt(document.getElementById('betInput').value, 10) || 100;
+      if (bet > balance) {
+        alert('Saldo insuficiente!');
+        return;
+      }
+      if (bet <= 0) {
+        alert('Aposta inválida!');
+        return;
+      }
+      balance -= bet;
+      updateDisplay();
+      const btn = document.getElementById('spinBtn');
+      btn.disabled = true;
+      document.getElementById('resultDisplay').className = 'result-msg';
+      document.getElementById('resultDisplay').textContent = '🎰 Girando...';
+      let count = 0;
+      const interval = setInterval(() => {
+        document.getElementById('r1').textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+        document.getElementById('r2').textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+        document.getElementById('r3').textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+        count++;
+        if (count > 10) {
+          clearInterval(interval);
+          finishSpin(bet);
+        }
+      }, 80);
+    }
+    function finishSpin(bet) {
+      const r1 = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+      const r2 = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+      const r3 = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+      document.getElementById('r1').textContent = r1;
+      document.getElementById('r2').textContent = r2;
+      document.getElementById('r3').textContent = r3;
+      const result = document.getElementById('resultDisplay');
+      document.getElementById('spinBtn').disabled = false;
+      if (r1 === r2 && r2 === r3) {
+        let mult = 10;
+        if (r1 === '👑') mult = 100;
+        else if (r1 === '💎') mult = 50;
+        else if (r1 === '🔔') mult = 20;
+        const won = bet * mult;
+        balance += won;
+        result.className = 'result-msg win';
+        result.textContent = '🏆 GANHOU! +' + won.toLocaleString('pt-BR') + ' moedas (' + mult + 'x)!';
+      } else if (r1 === r2 || r1 === r3 || r2 === r3) {
+        const won = bet * 2;
+        balance += won;
+        result.className = 'result-msg win';
+        result.textContent = '🎰 DUPLA! Recuperou +' + won.toLocaleString('pt-BR') + ' moedas (2x)!';
+      } else {
+        result.className = 'result-msg lose';
+        result.textContent = '😔 Não foi dessa vez! Tente novamente.';
+      }
+      if (balance <= 0) {
+        balance = 1000;
+        alert('Você faliu! Recebeu +1.000 moedas de suporte grátis!');
+      }
+      updateDisplay();
+    }
+    updateDisplay();
+  </script>
+</body>
+</html>
